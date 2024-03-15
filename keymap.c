@@ -1,681 +1,298 @@
-// Copyright 2021-2023 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-/**
- * @mainpage Pascal Getreuer's QMK keymap
- *
- * This is my Quantum Mechanical Keyboard (QMK) keymap for the Dactyl Ergodox.
- * Who knew a keyboard could do so much?
- *
- * Feature libraries
- * -----------------
- *  * features/achordion.h: customize the tap-hold decision
- *  * features/autocorrection.h: run rudimentary autocorrection on your keyboard
- *  * features/caps_word.h: modern alternative to Caps Lock
- *  * features/custom_shift_keys.h: they're surprisingly tricky to get right;
- *                                  here is my approach
- *  * features/layer_lock.h: macro to stay in the current layer
- *  * features/mouse_turbo_click.h: macro that clicks the mouse rapidly
- *  * features/orbital_mouse.h: a polar approach to mouse key control
- *  * features/repeat_key.h: a "repeat last key" implementation
- *  * features/sentence_case.h: capitalize first letter of sentences
- *  * features/select_word.h: macro for convenient word or line selection
- *
- * License
- * -------
- * This code uses the Apache License 2.0. See LICENSE.txt for details.
- *
- * For further documentation of this keymap's features, see
- * <https://getreuer.info/posts/keyboards>
- */
-
 #include QMK_KEYBOARD_H
-
+#include "version.h"
+#include "i18n.h"
 #include "features/achordion.h"
 #include "features/custom_shift_keys.h"
-#include "features/orbital_mouse.h"
-#include "features/select_word.h"
-#include "features/sentence_case.h"
-#include "layout.h"
-
-enum layers {
-  BASE,
-  QWERTY,
-  SYM,
-  MOUSE,
-  ADJUST,
-};
+#define MOON_LED_LEVEL LED_LEVEL
 
 enum custom_keycodes {
-  UPDIR = SAFE_RANGE,
-  EXIT,
-  SCOPE,
-  SELWORD,
-  TMUXESC,
-  SRCHSEL,
-  USRNAME,
-  DASH,
-  ARROW,
-  HAPPY,
-  M_ION,
-  M_NION,
-  M_MENT,
-  M_QUEN,
-  M_TMENT,
-  M_THE,
-  M_UPDIR,
-  M_INCLUDE,
-  M_DOCSTR,
-  M_MKGRVS,
-  M_EQEQ,
+  RGB_SLD = ML_SAFE_RANGE,
+  ST_MACRO_0,
+  ST_MACRO_1,
+  ST_MACRO_2,
+  UKC_CAPS_WORD,
 };
-
-// This keymap uses Ikcelaks' Magic Sturdy layout for the base layer (see
-// https://github.com/Ikcelaks/keyboard_layouts). I've also made some twists of
-// my own. The "magic" is a key whose function depends on the last pressed key,
-// implemented using the Alternate Repeat Key. This key is used to remove the
-// top SFBs and type common n-grams.
-//
-// The following describes the functionality, where * is the magic key and @ the
-// repeat key. For example, tapping A and then the magic key types "ao".
-//
-// SFB removal and common n-grams:
-//
-//     A * -> AO     L * -> LK      S * -> SK
-//     C * -> CY     M * -> MENT    T * -> TMENT
-//     D * -> DY     O * -> OA      U * -> UE
-//     E * -> EU     P * -> PY      Y * -> YP
-//     G * -> GY     Q * -> QUEN    spc * -> THE
-//     I * -> ION    R * -> RL
-//
-// When the magic key types a letter, following it with the repeat key produces
-// "n". This is useful to type certain patterns without SFBs.
-//
-//     A * @ -> AON             (like "kaon")
-//     D * @ -> DYN             (like "dynamic")
-//     E * @ -> EUN             (like "reunite")
-//     O * @ -> OAN             (like "loan")
-//
-// Other patterns:
-//
-//     spc * @ -> THEN
-//     I * @ -> IONS            (like "nations")
-//     M * @ -> MENTS           (like "moments")
-//     Q * @ -> QUENC           (like "frequency")
-//     T * @ -> TMENTS          (lite "adjustments")
-//     = *   -> ===             (JS code)
-//     ! *   -> !==             (JS code)
-//     " *   -> """<cursor>"""  (Python code)
-//     ` *   -> ```<cursor>```  (Markdown code)
-//     # *   -> #include        (C code)
-//     < -   -> <-              (Haskell code)
-//     . *   -> ../             (shell)
-//     . * @ -> ../../
-#define MAGIC QK_AREP  // The "magic" key is Alternate Repeat.
-
-// This keymap uses home row mods. In addition to mods, I have home row
-// layer-tap keys for the SYM layer. The key arrangement is a variation on
-// "GASC-order" home row mods:
-//
-//             Left hand                          Right hand
-// +-------+-------+-------+-------+   +-------+-------+-------+-------+
-// |  Sym  |  Alt  | Shift | Ctrl  |   | Ctrl  | Shift |  Alt  |  Sym  |
-// +-------+-------+-------+-------+   +-------+-------+-------+-------+
-// |  Gui  |                                                   |  Gui  |
-// +-------+                                                   +-------+
-
-// Home row mods for Magic Sturdy layer.
-#define HOME_S LT(SYM, KC_S)
-#define HOME_T LALT_T(KC_T)
-#define HOME_R LSFT_T(KC_R)
-#define HOME_D LCTL_T(KC_D)
-#define HOME_N RCTL_T(KC_N)
-#define HOME_E RSFT_T(KC_E)
-#define HOME_A LALT_T(KC_A)
-#define HOME_I LT(SYM, KC_I)
-#define HOME_X LGUI_T(KC_X)
-#define HOME_SC RGUI_T(KC_SCLN)
-
-// Home row mods for QWERTY layer.
-#define QHOME_A LT(SYM, KC_A)
-#define QHOME_S LALT_T(KC_S)
-#define QHOME_D LSFT_T(KC_D)
-#define QHOME_F LCTL_T(KC_F)
-#define QHOME_J RCTL_T(KC_J)
-#define QHOME_K RSFT_T(KC_K)
-#define QHOME_L LALT_T(KC_L)
-#define QHOME_SC LT(SYM, KC_SCLN)
-#define QHOME_Z LGUI_T(KC_Z)
-#define QHOME_SL RGUI_T(KC_SLSH)
-
-// clang-format off
-// keymap_vis:begin
-const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
-  [BASE] = LAYOUT_LR(  // Base layer: Magic Sturdy.
-    KC_GRV , KC_7   , KC_8   , KC_9   , KC_0   , KC_5   ,
-    KC_TAB , KC_V   , KC_M   , KC_L   , KC_C   , KC_P   ,
-    KC_BSPC, HOME_S , HOME_T , HOME_R , HOME_D , KC_Y   ,
-    KC_LSFT, HOME_X , KC_K   , KC_J   , KC_G   , KC_W   ,
-    KC_LCTL, KC_PGUP, KC_PGDN, KC_DOWN, KC_UP  ,
-                                                          MO(SYM), KC_UNDS,
-                                                                   KC_BSLS,
-                                                 KC_DEL , KC_SPC , KC_BTN1,
-
-                      KC_6   , KC_1   , KC_2   , KC_3   , KC_4   , USRNAME,
-                      KC_B   , MAGIC  , KC_U   , KC_O   , KC_Q   , KC_SLSH,
-                      KC_F   , HOME_N , HOME_E , HOME_A , HOME_I , KC_MINS,
-                      KC_Z   , KC_H   , KC_COMM, KC_DOT , HOME_SC, KC_ENT ,
-                               KC_LEFT, KC_RGHT, DASH   , ARROW  , HAPPY  ,
-    KC_QUOT, TG(MOUSE),
-    SCOPE  ,
-    SELWORD, QK_REP , KC_ESC
-  ),
-
-  [QWERTY] = LAYOUT_LR(  // Alternative base layer: QWERTY.
-    _______, _______, _______, _______, _______, _______,
-    _______, KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,
-    _______, QHOME_A, QHOME_S, QHOME_D, QHOME_F, KC_G   ,
-    _______, QHOME_Z, KC_X   , KC_C   , KC_V   , KC_B   ,
-    _______, _______, _______, _______, _______,
-                                                          _______, _______,
-                                                                   _______,
-                                                 _______, _______, _______,
-
-                      _______, _______, _______, _______, _______, _______,
-                      KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , _______,
-                      KC_H   , QHOME_J, QHOME_K, QHOME_L, QHOME_SC, _______,
-                      KC_N   , KC_M   , KC_COMM, KC_DOT , QHOME_SL, _______,
-                               _______, _______, _______, _______, _______,
-    _______, _______,
-    _______,
-    _______, _______, _______
-  ),
-
-  [SYM] = LAYOUT_LR(  // Symbol layer.
-    _______, KC_F7  , KC_F8  , KC_F9  , KC_F10 , KC_F5  ,
-    TMUXESC, _______, KC_LABK, KC_RABK, KC_AT  , KC_DOT ,
-    _______, KC_EXLM, KC_MINS, KC_PLUS, KC_EQL , KC_HASH,
-    _______, _______, KC_SLSH, KC_ASTR, KC_CIRC, SCOPE,
-    _______, _______, _______, C(KC_END), C(KC_HOME),
-                                                          _______, _______,
-                                                                   _______,
-                                                 SRCHSEL, _______, _______,
-
-                      KC_F6  , KC_F1  , KC_F2  , KC_F3  , KC_F4  , KC_F11 ,
-                      KC_AMPR, _______, KC_LBRC, KC_RBRC, _______, KC_F12 ,
-                      KC_PIPE, KC_COLN, KC_LPRN, KC_RPRN, KC_PERC, TO(ADJUST),
-                      KC_TILD, KC_DLR , KC_LCBR, KC_RCBR, _______, _______,
-                               KC_HOME, KC_END , _______, _______, _______,
-    TMUXESC, _______,
-    _______,
-    _______, _______, _______
-  ),
-
-  [MOUSE] = LAYOUT_LR(  // Mouse keys layer.
-    G(KC_TAB), _______, _______, _______, _______, _______,
-    _______, KC_MPLY, OM_BTN2, OM_U   , OM_BTNS, OM_DBLS,
-    EXIT   , KC_WBAK, OM_L   , OM_D   , OM_R   , OM_HLDS,
-    _______, KC_LGUI, OM_BTN3, OM_W_D , OM_W_U , OM_RELS,
-    _______, _______, _______, C(KC_C), C(KC_V),
-                                                          _______, _______,
-                                                                   _______,
-                                                 _______, OM_BTNS, _______,
-
-                      _______, _______, _______, _______, _______, G(KC_TAB),
-                      OM_DBLS, OM_BTNS, OM_U   , OM_BTN2, KC_MPLY, _______,
-                      OM_HLDS, OM_L   , OM_D   , OM_R   , KC_WBAK, EXIT   ,
-                      OM_RELS, OM_W_D , OM_W_U , OM_BTN3, KC_RGUI, _______,
-                               _______, _______, C(KC_PGUP), C(KC_PGDN),  _______,
-    _______, _______,
-    _______,
-    _______, OM_BTNS, _______
-  ),
-
-  [ADJUST] = LAYOUT_LR(  // Adjust layer.
-    QK_BOOT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-    EXIT   , XXXXXXX, XXXXXXX, DF(BASE), DF(QWERTY), XXXXXXX,
-    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-                                                          XXXXXXX, XXXXXXX,
-                                                                   XXXXXXX,
-                                                 XXXXXXX, XXXXXXX, _______,
-
-                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, QK_BOOT,
-                      XXXXXXX, KC_BRID, KC_BRIU, XXXXXXX, XXXXXXX, XXXXXXX ,
-                      XXXXXXX, KC_MPRV, KC_MNXT, KC_MPLY, XXXXXXX, EXIT  ,
-                      XXXXXXX, KC_VOLU, KC_VOLD, KC_MUTE, XXXXXXX, XXXXXXX,
-                               XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-    XXXXXXX, XXXXXXX,
-    XXXXXXX,
-    XXXXXXX, XXXXXXX, XXXXXXX
-  ),
-};
-// keymap_vis:end
-// clang-format on
-
-const uint32_t unicode_map[] PROGMEM = {};
 
 const custom_shift_key_t custom_shift_keys[] = {
-    {KC_DOT, KC_QUES},  // Shift . is ?
-    {KC_COMM, KC_EXLM},
-    {KC_EQL, KC_EQL},  // Don't shift =
-    {KC_SLSH, KC_SLSH},  // Don't shift /
+  // {KC_DOT , KC_QUES}, // Shift . is ?
+  // {KC_COMM, KC_EXLM}, // Shift , is !
+  // {KC_MINS, KC_EQL }, // Shift - is =
+  {KC_EQUAL, KC_EXLM}, // Shift = is !
+  {KC_COLN, KC_SCLN}, // Shift : is ;
 };
 uint8_t NUM_CUSTOM_SHIFT_KEYS =
-    sizeof(custom_shift_keys) / sizeof(*custom_shift_keys);
+    sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
 
-const uint16_t caps_combo[] PROGMEM = {KC_J, KC_COMM, COMBO_END};
-combo_t key_combos[] = {
-    // J and , => activate Caps Word.
-    COMBO(caps_combo, CW_TOGG),
+enum tap_dance_codes {
+  DANCE_0,
 };
-uint16_t COMBO_LEN = sizeof(key_combos) / sizeof(*key_combos);
 
-uint16_t get_tapping_term(uint16_t keycode, keyrecord_t* record) {
-  switch (keycode) {
-    // Increase the tapping term a little for slower ring and pinky fingers.
-    case HOME_S:
-    case HOME_T:
-    case HOME_A:
-    case HOME_I:
-    case QHOME_A:
-    case QHOME_S:
-    case QHOME_L:
-    case QHOME_SC:
-      return TAPPING_TERM + 15;
+#define HOME_ESC LT(3,KC_ESCAPE)
+#define THUMB_ENTER LT(1,KC_ENTER)
+#define THUMB_TAB LT(2,KC_TAB)
 
-    default:
-      return TAPPING_TERM;
-  }
-}
+const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+  [0] = LAYOUT_voyager(
+    LT(4,KC_GRAVE), KC_1,           KC_2,           KC_3,           KC_4,           KC_5,                                           KC_6,           KC_7,           KC_8,           KC_9,           KC_0,           TD(DANCE_0),
+    KC_EQUAL,       KC_QUOTE,       KC_COMMA,       KC_DOT,         KC_P,           KC_Y,                                           KC_F,           KC_G,           KC_C,           KC_R,           KC_L,           KC_SLASH,
+    HOME_ESC,       MT(MOD_LGUI, KC_A),MT(MOD_LALT, KC_O),MT(MOD_LCTL, KC_E),MT(MOD_LSFT, KC_U),KC_I,                               KC_D,           MT(MOD_RSFT, KC_H),MT(MOD_RCTL, KC_T),MT(MOD_RALT, KC_N),MT(MOD_RGUI, KC_S),KC_MINUS,
+    QK_LEAD,        KC_COLN,        KC_Q,           KC_J,           KC_K,           KC_X,                                           KC_B,           KC_M,           KC_W,           KC_V,           KC_Z,           KC_UNDS,
+                                                    THUMB_ENTER,    THUMB_TAB,                                      KC_BSPC,        KC_SPACE
+  ),
+  [1] = LAYOUT_voyager(
+    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+    KC_TRANSPARENT, KC_DQUO,        KC_LABK,        KC_RABK,        KC_GRAVE,       KC_DOT,                                         KC_AMPR,        KC_RBRC,        KC_LBRC,        KC_CIRC,        KC_TRANSPARENT, KC_TRANSPARENT,
+    KC_TRANSPARENT, KC_EXLM,        KC_MINUS,       KC_PLUS,        KC_EQUAL,       KC_HASH,                                        KC_PIPE,        KC_RPRN,        KC_LPRN,        KC_AT,          KC_PERC,        KC_UNDS,
+    KC_TRANSPARENT, KC_TRANSPARENT, KC_SLASH,       KC_ASTR,        KC_BSLS,        ST_MACRO_0,                                     KC_TILD,        KC_RCBR,        KC_LCBR,        KC_DLR,         KC_TRANSPARENT, KC_TRANSPARENT,
+                                                    KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
+  ),
+  [2] = LAYOUT_voyager(
+    KC_ESCAPE,      KC_F1,          KC_F2,          KC_F3,          KC_F4,          KC_F5,                                          KC_F6,          KC_F7,          KC_F8,          KC_F9,          KC_F10,         QK_LLCK,
+    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_0,           KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_7,           KC_8,           KC_9,           KC_KP_ASTERISK, KC_KP_SLASH,
+    QK_LLCK,        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_0,           KC_4,           KC_5,           KC_6,           KC_0,           KC_KP_MINUS,
+    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_0,           KC_1,           KC_2,           KC_3,           KC_KP_PLUS,     KC_EQUAL,
+                                                    KC_TRANSPARENT, QK_LLCK,                                        KC_TRANSPARENT, KC_TRANSPARENT
+  ),
+  [3] = LAYOUT_voyager(
+    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, QK_LLCK,
+    KC_TRANSPARENT, KC_TRANSPARENT, KC_AUDIO_VOL_DOWN,KC_MEDIA_PLAY_PAUSE,KC_AUDIO_VOL_UP,KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_HOME,        KC_PGDN,        KC_PAGE_UP,     KC_END,         KC_TRANSPARENT,
+    QK_LLCK,        KC_LEFT_GUI,    KC_LEFT_ALT,    KC_LEFT_CTRL,   KC_LEFT_SHIFT,  KC_TRANSPARENT,                                 KC_DELETE,      KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       KC_TRANSPARENT,
+    KC_TRANSPARENT, KC_TRANSPARENT, KC_PC_CUT,      KC_PC_COPY,     KC_PC_PASTE,    KC_TRANSPARENT,                                 KC_TRANSPARENT, LALT(KC_LEFT),  LCTL(LSFT(KC_TAB)),LCTL(KC_TAB),   LALT(KC_RIGHT), KC_TRANSPARENT,
+                                                    KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
+  ),
+  [4] = LAYOUT_voyager(
+    KC_TRANSPARENT, TO(0),          TO(5),          TO(6),          ST_MACRO_1,     ST_MACRO_2,                                     KC_TRANSPARENT, KC_F10,         KC_F11,         KC_F12,         RGB_HUI,        RGB_MODE_FORWARD,
+    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_PSCR,        KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_F7,          KC_F8,          KC_F9,          RGB_HUD,        RGB_SPI,
+    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_F4,          KC_F5,          KC_F6,          RGB_VAI,        RGB_SPD,
+    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_F1,          KC_F2,          KC_F3,          RGB_VAD,        RGB_TOG,
+                                                    KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
+  ),
+  [5] = LAYOUT_voyager(
+    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+    KC_TRANSPARENT, KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,           KC_O,           KC_P,           KC_TRANSPARENT,
+    KC_TRANSPARENT, MT(MOD_LGUI, KC_A),MT(MOD_LALT, KC_S),MT(MOD_LCTL, KC_D),MT(MOD_LSFT, KC_F),KC_G,                                           KC_H,           MT(MOD_RSFT, KC_J),MT(MOD_RCTL, KC_K),MT(MOD_RALT, KC_L),MT(MOD_RGUI, KC_SCLN),KC_TRANSPARENT,
+    KC_TRANSPARENT, KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           KC_COMMA,       KC_DOT,         KC_SLASH,       KC_TRANSPARENT,
+                                                    KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
+  ),
+  [6] = LAYOUT_voyager(
+    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+    KC_TRANSPARENT, KC_A,           KC_O,           KC_E,           KC_U,           KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_H,           KC_T,           KC_N,           KC_S,           KC_TRANSPARENT,
+    KC_LEFT_SHIFT,  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_RIGHT_SHIFT,
+                                                    KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
+  ),
+};
 
-uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t* record) {
-  // If you quickly hold a tap-hold key after tapping it, the tap action is
-  // repeated. Key repeating is useful e.g. for Vim navigation keys, but can
-  // lead to missed triggers in fast typing. Here, returning 0 means we
-  // instead want to "force hold" and disable key repeating.
-  switch (keycode) {
-    case HOME_N:
-    // Repeating is useful for Vim navigation keys.
-    case QHOME_J:
-    case QHOME_K:
-    case QHOME_L:
-      return QUICK_TAP_TERM;  // Enable key repeating.
-    default:
-      return 0;  // Otherwise, force hold and disable key repeating.
-  }
-}
+const uint16_t PROGMEM combo0[] = { KC_1, KC_2, COMBO_END};
+const uint16_t PROGMEM combo1[] = { KC_2, KC_3, COMBO_END};
+const uint16_t PROGMEM combo2[] = { KC_3, KC_4, COMBO_END};
+const uint16_t PROGMEM combo3[] = { KC_G, MT(MOD_RSFT, KC_H), COMBO_END};
+const uint16_t PROGMEM combo4[] = { KC_C, MT(MOD_RCTL, KC_T), COMBO_END};
+const uint16_t PROGMEM combo5[] = { KC_R, MT(MOD_RALT, KC_N), COMBO_END};
+const uint16_t PROGMEM combo6[] = { KC_L, MT(MOD_RGUI, KC_S), COMBO_END};
+const uint16_t PROGMEM combo7[] = { MT(MOD_LSFT, KC_U), MT(MOD_RSFT, KC_H), COMBO_END};
 
-#ifdef AUTOCORRECT_ENABLE
-bool apply_autocorrect(uint8_t backspaces, const char* str,
-                       char* typo, char* correct) {
-  for (uint8_t i = 0; i < backspaces; ++i) {
-    tap_code(KC_BSPC);
-  }
-  send_string_with_delay_P(str, TAP_CODE_DELAY);
-  return false;
-}
-#endif  // AUTOCORRECT_ENABLE
+combo_t key_combos[COMBO_COUNT] = {
+    COMBO(combo0, KC_F2),
+    COMBO(combo1, KC_F3),
+    COMBO(combo2, KC_F4),
+    COMBO(combo3, KC_LEFT),
+    COMBO(combo4, KC_DOWN),
+    COMBO(combo5, KC_UP),
+    COMBO(combo6, KC_RIGHT),
+    COMBO(combo7, CW_TOGG),
+};
 
-bool caps_word_press_user(uint16_t keycode) {
-  switch (keycode) {
-    // Keycodes that continue Caps Word, with shift applied.
-    case KC_A ... KC_Z:
-      add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to the next key.
-      return true;
-
-    // Keycodes that continue Caps Word, without shifting.
-    case KC_1 ... KC_0:
-    case KC_BSPC:
-    case KC_DEL:
-    // I have a dedicated underscore key, so no need to shift KC_MINS.
-    case KC_MINS:
-    case KC_UNDS:
-    // These magic patterns work with Caps Word.
-    case M_ION:
-    case M_MENT:
-    case M_QUEN:
-    case M_TMENT:
-      return true;
-
-    default:
-      return false;  // Deactivate Caps Word.
-  }
-}
-
-bool achordion_chord(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
-                     uint16_t other_keycode, keyrecord_t* other_record) {
-  // Exceptionally consider the following chords as holds, even though they
-  // are on the same hand in Magic Sturdy.
-  switch (tap_hold_keycode) {
-    case HOME_X:  // X + D and X + G.
-      if (other_keycode == HOME_D || other_keycode == KC_G) {
-        return true;
-      }
-      break;
-  }
-
-  // Also allow same-hand holds when the other key is in the rows below the
-  // alphas. I need the `% (MATRIX_ROWS / 2)` because my keyboard is split.
-  if (other_record->event.key.row % (MATRIX_ROWS / 2) >= 4) {
-    return true;
-  }
-
-  // Otherwise, follow the opposite hands rule.
-  return achordion_opposite_hands(tap_hold_record, other_record);
-}
-
-uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
-  return 800;  // Use a timeout of 800 ms.
-}
-
-uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
-  if (IS_QK_LAYER_TAP(tap_hold_keycode)) {
-    return 0;  // Disable streak detection on layer-tap keys.
-  }
-
-  // Otherwise, tap_hold_keycode is a mod-tap key.
-  uint8_t mod = mod_config(QK_MOD_TAP_GET_MODS(tap_hold_keycode));
-  if ((mod & MOD_LSFT) != 0) {
-    return 0;  // Disable for Shift mod-tap keys.
-  } else {
-    return 100;
-  }
-}
-
-char sentence_case_press_user(uint16_t keycode, keyrecord_t* record,
-                              uint8_t mods) {
-  if ((mods & ~(MOD_MASK_SHIFT | MOD_BIT(KC_RALT))) == 0) {
-    const bool shifted = mods & MOD_MASK_SHIFT;
+uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-      case KC_LCTL ... KC_RGUI:  // Mod keys.
-        return '\0';  // These keys are ignored.
+        case MT(MOD_LSFT, KC_U):
+            return TAPPING_TERM -30;
+        case MT(MOD_RSFT, KC_H):
+            return TAPPING_TERM -30;
+        default:
+            return TAPPING_TERM;
+    }
+}
 
-      case KC_A ... KC_Z:
-      case M_THE:
-        return 'a';  // Letter key.
+extern rgb_config_t rgb_matrix_config;
 
-      case KC_DOT:  // Both . and Shift . (?) punctuate sentence endings.
-        return '.';
-      case KC_COMM:  // Shift , (!) is a sentence ending.
-        return shifted ? '.' : '#';
+void keyboard_post_init_user(void) {
+  rgb_matrix_enable();
+  debug_enable=true;
+}
 
-      case KC_1 ... KC_0:  // 1 2 3 4 5 6 7 8 9 0
-      case KC_MINS ... KC_SCLN:  // - = [ ] ; ` backslash
-      case KC_GRV:
-      case KC_SLSH:
-        return '#';  // Symbol key.
+const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
+    [4] = { {0,0,0}, {87,218,204}, {0,255,255}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {139,219,201}, {139,219,201}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {216,211,192}, {139,219,201}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,255}, {139,219,201}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,116}, {139,219,201}, {0,0,0}, {0,0,0} },
 
-      case KC_SPC:
-        return ' ';  // Space key.
+};
 
-      case KC_QUOT:
-        return '\'';  // Quote key.
+void set_layer_color(int layer) {
+  for (int i = 0; i < RGB_MATRIX_LED_COUNT; i++) {
+    HSV hsv = {
+      .h = pgm_read_byte(&ledmap[layer][i][0]),
+      .s = pgm_read_byte(&ledmap[layer][i][1]),
+      .v = pgm_read_byte(&ledmap[layer][i][2]),
+    };
+    if (!hsv.h && !hsv.s && !hsv.v) {
+        rgb_matrix_set_color( i, 0, 0, 0 );
+    } else {
+        RGB rgb = hsv_to_rgb( hsv );
+        float f = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
+        rgb_matrix_set_color( i, f * rgb.r, f * rgb.g, f * rgb.b );
     }
   }
-
-  // Otherwise clear Sentence Case to initial state.
-  sentence_case_clear();
-  return '\0';
 }
 
-// clang-format off
-uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
-  if ((mods & ~MOD_MASK_SHIFT) == 0) {
-    switch (keycode) {
-      // For navigating next/previous search results in Vim:
-      // N -> Shift + N, Shift + N -> N.
-      case HOME_N:
-        if ((mods & MOD_MASK_SHIFT) == 0) {
-          return S(KC_N);
-        }
-        // Fall through intended.
-      case KC_N: return KC_N;
-
-      // Behavior for Magic Sturdy's "magic" key.
-      case HOME_A: return KC_O;       // A -> O
-      case KC_C: return KC_Y;         // C -> Y
-      case HOME_D: return KC_Y;       // D -> Y
-      case HOME_E: return KC_U;       // E -> U
-      case KC_G: return KC_Y;         // G -> Y
-      case HOME_I: return M_ION;      // I -> ON
-      case KC_L: return KC_K;         // L -> K
-      case KC_M: return M_MENT;       // M -> ENT
-      case KC_O: return KC_A;         // O -> A
-      case KC_P: return KC_Y;         // P -> Y
-      case KC_Q: return M_QUEN;       // Q -> UEN
-      case HOME_R: return KC_L;       // R -> L
-      case HOME_S: return KC_K;       // S -> K
-      case HOME_T: return M_TMENT;    // T -> TMENT
-      case KC_U: return KC_E;         // U -> E
-      case KC_Y: return KC_P;         // Y -> P
-      case KC_SPC: return M_THE;      // spc -> THE
-
-      case KC_DOT: return M_UPDIR;    // . -> ./
-      case KC_COMM:                   // ! -> ==
-        if ((mods & MOD_MASK_SHIFT) == 0) {
-          return KC_NO;
-        }
-        // Fall through intended.
-      case KC_EQL: return M_EQEQ;     // = -> ==
-      case KC_HASH: return M_INCLUDE; // # -> include
-      case KC_QUOT:
-        if ((mods & MOD_MASK_SHIFT) != 0) {
-          return M_DOCSTR;  // " -> ""<cursor>"""
-        }
-        return KC_NO;
-      case KC_GRV:  // ` -> ``<cursor>``` (for Markdown code)
-        return M_MKGRVS;
-      case KC_LABK: return KC_MINS;   // < -> - (for Haskell)
-    }
-  } else if ((mods & MOD_MASK_CTRL)) {
-    switch (keycode) {
-      case HOME_A:  // Ctrl+A -> Ctrl+C
-        return C(KC_C);
-    }
-  }
-  return KC_TRNS;
-}
-// clang-format on
-
-bool remember_last_key_user(uint16_t keycode, keyrecord_t* record,
-                            uint8_t* remembered_mods) {
-  // Unpack tapping keycode for tap-hold keys.
-  switch (keycode) {
-#ifndef NO_ACTION_TAPPING
-    case QK_MOD_TAP ... QK_MOD_TAP_MAX:
-      keycode = QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
+bool rgb_matrix_indicators_user(void) {
+  if (keyboard_config.disable_layer_led) { return false; }
+  switch (biton32(layer_state)) {
+    case 4:
+      set_layer_color(4);
       break;
-#ifndef NO_ACTION_LAYER
-    case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
-      keycode = QK_LAYER_TAP_GET_TAP_KEYCODE(keycode);
-      break;
-#endif  // NO_ACTION_LAYER
-#endif  // NO_ACTION_TAPPING
+   default:
+    if (rgb_matrix_get_flags() == LED_FLAG_NONE)
+      rgb_matrix_set_color_all(0, 0, 0);
+    break;
   }
-
-  // Forget Shift on letters when Shift or AltGr are the only mods.
-  // Exceptionally, I want Shift remembered on N and Z for "NN" and "ZZ" in Vim.
-  switch (keycode) {
-    case KC_A ... KC_M:
-    case KC_O ... KC_Y:
-      if ((*remembered_mods & ~(MOD_MASK_SHIFT | MOD_BIT(KC_RALT))) == 0) {
-        *remembered_mods &= ~MOD_MASK_SHIFT;
-      }
-      break;
-  }
-
   return true;
 }
 
-// An enhanced version of SEND_STRING: if Caps Word is active, the Shift key is
-// held while sending the string. Additionally, the last key is set such that if
-// the Repeat Key is pressed next, it produces `repeat_keycode`.
-#define MAGIC_STRING(str, repeat_keycode) \
-  magic_send_string_P(PSTR(str), (repeat_keycode))
-static void magic_send_string_P(const char* str, uint16_t repeat_keycode) {
-  uint8_t saved_mods = 0;
-  // If Caps Word is on, save the mods and hold Shift.
-  if (is_caps_word_on()) {
-    saved_mods = get_mods();
-    register_mods(MOD_BIT(KC_LSFT));
-  }
-
-  send_string_with_delay_P(str, TAP_CODE_DELAY);  // Send the string.
-  set_last_keycode(repeat_keycode);
-
-  // If Caps Word is on, restore the mods.
-  if (is_caps_word_on()) {
-    set_mods(saved_mods);
-  }
-}
-
-// clang-format off
-bool process_record_user(uint16_t keycode, keyrecord_t* record) {
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  // If console is enabled, it will print the matrix position and status of each key pressed
+#ifdef CONSOLE_ENABLE
+  uprintf("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
+#endif
   if (!process_achordion(keycode, record)) { return false; }
-  if (!process_sentence_case(keycode, record)) { return false; }
-  if (!process_select_word(keycode, record, SELWORD)) { return false; }
   if (!process_custom_shift_keys(keycode, record)) { return false; }
-  if (!process_orbital_mouse(keycode, record)) { return false; }
-
-  const uint8_t mods = get_mods();
-  const uint8_t all_mods = (mods | get_weak_mods()
-#ifndef NO_ACTION_ONESHOT
-                        | get_oneshot_mods()
-#endif  // NO_ACTION_ONESHOT
-  );
-  const bool shifted = all_mods & MOD_MASK_SHIFT;
-  const bool ctrl = all_mods & MOD_MASK_CTRL;
-
-  // If alt repeating a key A-Z with no mods other than Shift, set the last key
-  // to KC_N. Above, alternate repeat of KC_N is defined to be again KC_N. This
-  // way, either tapping alt repeat and then repeat (or double tapping alt
-  // repeat) is useful to type certain patterns without SFBs:
-  //
-  //   O <altrep> <rep> -> OAN (as in "loan")
-  //   D <altrep> <rep> -> DYN (as in "dynamic")
-  if (get_repeat_key_count() < 0 &&
-      KC_A <= keycode && keycode <= KC_Z && keycode != KC_N &&
-      (get_last_mods() & ~MOD_MASK_SHIFT) == 0) {
-    set_last_keycode(KC_N);
-    set_last_mods(0);
-  }
-
-  if (record->event.pressed) {
-    switch (keycode) {
-      case EXIT:  // Turn off all layers except BASE and QWERTY.
-        layer_and(
-            ((layer_state_t)1 << BASE) |
-            ((layer_state_t)1 << QWERTY)
-        );
-        return false;
-
-      case SCOPE:
-        SEND_STRING_DELAY("::", TAP_CODE_DELAY);
-        return false;
-
-      case UPDIR:
-        SEND_STRING_DELAY("../", TAP_CODE_DELAY);
-        return false;
-
-      case TMUXESC:  // Enter copy mode in Tmux.
-        SEND_STRING(SS_LCTL("a") SS_TAP(X_ESC));
-        return false;
-
-      case SRCHSEL:  // Searches the current selection in a new tab.
-        // Mac users, change LCTL to LGUI.
-        SEND_STRING_DELAY(
-            SS_LCTL("ct") SS_DELAY(100) SS_LCTL("v") SS_TAP(X_ENTER),
-            TAP_CODE_DELAY);
-        return false;
-
-      case USRNAME: {  // Type my username, or if Shift is held, my last name.
-        static const char username[] PROGMEM = "getreuer";
-        static const char last_name[] PROGMEM = "Getreuer";
-        clear_weak_mods();
-        unregister_mods(mods);  // Clear mods before send_string.
-        send_string_with_delay_P(shifted ? last_name : username,
-                                 TAP_CODE_DELAY);
-        register_mods(mods);  // Restore mods.
-      } break;
-
-      case DASH:  // En dash, or em dash when shifted.
-        send_unicode_string(shifted ? "\xe2\x80\x94" : "\xe2\x80\x93");
-        return false;
-
-      case ARROW:  // Unicode arrows -> => <-> <=> through Shift and Ctrl.
-        send_unicode_string(ctrl ? (shifted
-                                    ? "\xe2\x87\x94"     // <=>
-                                    : "\xe2\x86\x94")    // <->
-                                 : (shifted
-                                    ? "\xe2\x87\x92"     // =>
-                                    : "\xe2\x86\x92"));  // ->
-        return false;
-
-      case HAPPY:  // Types a happy emoji.
-        if (record->event.pressed) {
-          static const char* emojis[] = {
-              "\xf0\x9f\xa5\xb3",  // Party hat.
-              "\xf0\x9f\x91\x8d",  // Thumbs up.
-              "\xe2\x9c\x8c",      // Victory hand.
-              "\xf0\x9f\xa4\xa9",  // Star eyes.
-              "\xf0\x9f\x94\xa5",  // Fire.
-              "\xf0\x9f\x8e\x89",  // Party popper.
-              "\xf0\x9f\x91\xbe",  // Purple alien.
-              "\xf0\x9f\x98\x81",  // Grin.
-          };
-          const int NUM_EMOJIS = sizeof(emojis) / sizeof(*emojis);
-
-          // Pick an index between 0 and NUM_EMOJIS - 2.
-          uint8_t index = (UINT16_C(36563) * record->event.time) >> 8;
-          index = ((NUM_EMOJIS - 1) * index) >> 8;
-          // Don't pick the same emoji twice in a row.
-          static uint8_t last_index = 0;
-          if (index >= last_index) { ++index; }
-          last_index = index;
-
-          // Produce the emoji.
-          send_unicode_string(emojis[index]);
-        }
-        return false;
-
-      // Macros invoked through the MAGIC key.
-      case M_ION:     MAGIC_STRING(/*i*/"on", KC_S); break;
-      case M_MENT:    MAGIC_STRING(/*m*/"ent", KC_S); break;
-      case M_QUEN:    MAGIC_STRING(/*q*/"uen", KC_C); break;
-      case M_TMENT:   MAGIC_STRING(/*t*/"ment", KC_S); break;
-      case M_THE:     MAGIC_STRING(/* */"the", KC_N); break;
-      case M_UPDIR:   MAGIC_STRING(/*.*/"./", UPDIR); break;
-      case M_INCLUDE: SEND_STRING_DELAY(/*#*/"include ", TAP_CODE_DELAY); break;
-      case M_EQEQ:    SEND_STRING_DELAY(/*=*/"==", TAP_CODE_DELAY); break;
-      case M_DOCSTR:
-        SEND_STRING_DELAY(/*"*/"\"\"\"\"\""
-            SS_TAP(X_LEFT) SS_TAP(X_LEFT) SS_TAP(X_LEFT), TAP_CODE_DELAY);
-        break;
-      case M_MKGRVS:
-        SEND_STRING_DELAY(/*`*/"``\n\n```" SS_TAP(X_UP), TAP_CODE_DELAY);
-        break;
+  switch (keycode) {
+    case ST_MACRO_0:
+    if (record->event.pressed) {
+      SEND_STRING(SS_TAP(X_DOT) SS_DELAY(100) SS_TAP(X_DOT) SS_DELAY(100) SS_TAP(X_SLASH));
     }
-  }
+    break;
+    case ST_MACRO_1:
+    if (record->event.pressed) {
+      SEND_STRING(SS_LALT(SS_LCTL(SS_TAP(X_1))) SS_DELAY(100) SS_LALT(SS_LCTL(SS_TAP(X_F1))));
+    }
+    break;
+    case ST_MACRO_2:
+    if (record->event.pressed) {
+      SEND_STRING(SS_LALT(SS_LCTL(SS_TAP(X_2))) SS_DELAY(100) SS_LALT(SS_LCTL(SS_TAP(X_F2))));
+    }
+    break;
+    case UKC_CAPS_WORD:
+      caps_word_toggle();
+      return true;
 
+    case RGB_SLD:
+      if (record->event.pressed) {
+        rgblight_mode(1);
+      }
+      return false;
+  }
   return true;
 }
 
 void matrix_scan_user(void) {
   achordion_task();
-  orbital_mouse_task();
-  select_word_task();
-  sentence_case_task();
+}
+
+uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
+  switch (tap_hold_keycode) {
+    case THUMB_ENTER:
+    case THUMB_TAB:
+    case HOME_ESC:
+      return 0;  // Bypass Achordion for these keys.
+  }
+  return 800;
+}
+
+uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode, uint16_t next_keycode) {
+  if (IS_QK_LAYER_TAP(tap_hold_keycode)) {
+    return 0;  // Disable streak detection on layer-tap keys.
+  }
+
+  // mod-enter should be allowed in streaks (for alt-enter after web address)
+  if (next_keycode == THUMB_ENTER) return 0;
+
+  // Otherwise, tap_hold_keycode is a mod-tap key.
+  uint8_t mod = mod_config(QK_MOD_TAP_GET_MODS(tap_hold_keycode));
+  if ((mod & MOD_MASK_SHIFT) != 0) {
+    return 0;  // A shorter streak timeout for Shift mod-tap keys.
+  } else {
+    return 330;  // A longer timeout otherwise.
+  }
+}
+
+bool achordion_chord(uint16_t tap_hold_keycode,
+                     keyrecord_t* tap_hold_record,
+                     uint16_t other_keycode,
+                     keyrecord_t* other_record) {
+  // Allow same hand holds with the left column and left thumb cluster
+  // whethere they are the hold or tap key
+  //left thumb cluster
+  if (other_record->event.key.row == 5) { return true; }
+  //first column on left half
+  if (other_record->event.key.col == 1 && other_record->event.key.row < 4) { return true; }
+  if (tap_hold_record->event.key.row == 5) { return true; }
+  if (tap_hold_record->event.key.col == 1 && tap_hold_record->event.key.row < 4) { return true; }
+
+  // Otherwise, follow the opposite hands rule.
+  return achordion_opposite_hands(tap_hold_record, other_record);
+}
+
+bool achordion_eager_mod(uint8_t mod) {
+  switch (mod) {
+    case MOD_LSFT:
+    case MOD_LCTL:
+    case MOD_LALT:
+      return true;  // Eagerly apply left mods for use with mouse.
+
+    default:
+      return false;
+  }
+}
+
+bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
+  // If thumb cluster or left column initiate a multi key press, it's definitely a hold
+  if (record->event.key.row == 5) { return true; }
+  if (record->event.key.col == 1 && record->event.key.row < 4) { return true; }
+  return false;
+}
+
+tap_dance_action_t tap_dance_actions[] = {
+        [DANCE_0] = ACTION_TAP_DANCE_DOUBLE(KC_BSLS, KC_PSCR),
+};
+
+void leader_end_user(void) {
+    if (leader_sequence_two_keys(KC_E, KC_H)) {
+        // Leader, e, h => Home email
+        SEND_STRING("chase.sterling@gmail.com");
+    } else if (leader_sequence_two_keys(KC_E, KC_W)) {
+        // Leader, e, w => Work email
+        SEND_STRING("chase.sterling@h5datacenters.com");
+    } else if (leader_sequence_two_keys(KC_E, KC_S)) {
+        // Leader, e, s => Shared email
+        SEND_STRING("chase.and.rachel.sterling@gmail.com");
+    }
+}
+
+bool caps_word_press_user(uint16_t keycode) {
+    switch (keycode) {
+        // Keycodes that continue Caps Word, with shift applied.
+        case KC_A ... KC_Z:
+            add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to next key.
+            return true;
+
+        // Keycodes that continue Caps Word, without shifting.
+        case KC_1 ... KC_0:
+        case KC_BSPC:
+        case KC_DEL:
+        case KC_UNDS:
+        case KC_MINS:
+            return true;
+
+        default:
+            return false;  // Deactivate Caps Word.
+    }
 }

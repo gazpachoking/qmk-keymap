@@ -1,50 +1,55 @@
-// Copyright 2021-2023 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+  Set any config.h overrides for your specific keymap here.
+  See config.h options at https://docs.qmk.fm/#/config_options?id=the-configh-file
+*/
+#define ORYX_CONFIGURATOR
+#undef TAPPING_TERM
+#define TAPPING_TERM 280
+#define QUICK_TAP_TERM 80
+#define LEADER_TIMEOUT 400
+#define LEADER_PER_KEY_TIMING
 
-#pragma once
-
-#define USE_SERIAL
-#define MASTER_RIGHT
-
-// Unfortunately, some applications drop or misorder fast key events. This is a
-// partial fix to slow down the rate at which macros are sent.
-#define TAP_CODE_DELAY 12
-
-// Tap-hold configuration for home row mods.
-#define TAPPING_TERM 175
-#define TAPPING_TERM_PER_KEY
 #define PERMISSIVE_HOLD
-#define QUICK_TAP_TERM_PER_KEY
 
-#define NO_ACTION_MACRO
-#define NO_ACTION_FUNCTION
+#define LAYER_LOCK_IDLE_TIMEOUT 360000
+#define USB_SUSPEND_WAKEUP_DELAY 0
+#define FIRMWARE_VERSION u8"QlzyV/YoMYy"
+#define RAW_USAGE_PAGE 0xFF60
+#define RAW_USAGE_ID 0x61
+#define LAYER_STATE_8BIT
+#define COMBO_COUNT 8
 
-#define UNICODE_SELECTED_MODES UNICODE_MODE_LINUX
-
-// Use Left Ctrl + Right Ctrl to activate the Command feature.
-#define IS_COMMAND() (get_mods() == MOD_MASK_CTRL)
-
-// Holding Shift while Caps Word is active inverts the shift state.
-#define CAPS_WORD_INVERT_ON_SHIFT
-// When idle, turn off Caps Word after 5 seconds.
-#define CAPS_WORD_IDLE_TIMEOUT 5000
-
-// When idle, turn off Select Word after 2 seconds.
-#define SELECT_WORD_TIMEOUT 2000
-
-// When idle, turn off Sentence Case after 2 seconds.
-#define SENTENCE_CASE_TIMEOUT 2000
+#define TAPPING_TERM_PER_KEY
+#define RGB_MATRIX_STARTUP_SPD 60
 
 #define ACHORDION_STREAK
+#define HOLD_ON_OTHER_KEY_PRESS_PER_KEY
+// #define CAPS_WORD_INVERT_ON_SHIFT
+// #define BOTH_SHIFTS_TURNS_ON_CAPS_WORD
 
+#undef ENABLE_RGB_MATRIX_BAND_SAT
+#undef ENABLE_RGB_MATRIX_BAND_VAL
+#undef ENABLE_RGB_MATRIX_BAND_PINWHEEL_SAT
+#undef ENABLE_RGB_MATRIX_BAND_PINWHEEL_VAL
+#undef ENABLE_RGB_MATRIX_BAND_SPIRAL_SAT
+#undef ENABLE_RGB_MATRIX_BAND_SPIRAL_VAL
+#undef ENABLE_RGB_MATRIX_CYCLE_ALL
+#undef ENABLE_RGB_MATRIX_DUAL_BEACON
+#undef ENABLE_RGB_MATRIX_RAINBOW_BEACON
+#undef ENABLE_RGB_MATRIX_RAINBOW_PINWHEELS
+#undef ENABLE_RGB_MATRIX_RAINDROPS
+#undef ENABLE_RGB_MATRIX_JELLYBEAN_RAINDROPS
+#undef ENABLE_RGB_MATRIX_HUE_PENDULUM
+#undef ENABLE_RGB_MATRIX_HUE_WAVE
+#undef ENABLE_RGB_MATRIX_PIXEL_FRACTAL
+#undef ENABLE_RGB_MATRIX_PIXEL_FLOW
+#undef ENABLE_RGB_MATRIX_PIXEL_RAIN
+#undef ENABLE_RGB_MATRIX_DIGITAL_RAIN
+#undef ENABLE_RGB_MATRIX_SOLID_REACTIVE_SIMPLE
+#undef ENABLE_RGB_MATRIX_SOLID_REACTIVE_WIDE
+#undef ENABLE_RGB_MATRIX_SOLID_REACTIVE_CROSS
+#undef ENABLE_RGB_MATRIX_SOLID_REACTIVE_MULTICROSS
+#undef ENABLE_RGB_MATRIX_SOLID_REACTIVE_NEXUS
+#undef ENABLE_RGB_MATRIX_SPLASH
+#undef ENABLE_RGB_MATRIX_MULTISPLASH
+#undef ENABLE_RGB_MATRIX_SOLID_SPLASH
