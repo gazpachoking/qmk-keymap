@@ -207,7 +207,7 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
   return 800;
 }
 
-uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode, uint16_t next_keycode) {
+uint16_t achordion_streak_chord_timeout(uint16_t tap_hold_keycode, uint16_t next_keycode) {
   if (IS_QK_LAYER_TAP(tap_hold_keycode)) {
     return 0;  // Disable streak detection on layer-tap keys.
   }
