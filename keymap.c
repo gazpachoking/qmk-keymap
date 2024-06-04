@@ -217,6 +217,8 @@ uint16_t achordion_streak_chord_timeout(uint16_t tap_hold_keycode, uint16_t next
 
   // Otherwise, tap_hold_keycode is a mod-tap key.
   uint8_t mod = mod_config(QK_MOD_TAP_GET_MODS(tap_hold_keycode));
+  // ctrl-v should be allowed in streaks
+  if (mod & MOD_MASK_CTRL && next_keycode == KC_V) return 0;
   if ((mod & MOD_MASK_SHIFT) != 0) {
     return 0;  // A shorter streak timeout for Shift mod-tap keys.
   } else {
