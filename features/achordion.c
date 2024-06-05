@@ -258,7 +258,8 @@ void achordion_task(void) {
   }
 
 #ifdef ACHORDION_STREAK
-  if (streak_timer && timer_expired(timer_read(), (streak_timer + 800))) {
+  #define MAX_STREAK_TIMEOUT 800
+  if (streak_timer && timer_expired(timer_read(), (streak_timer + MAX_STREAK_TIMEOUT))) {
     streak_timer = 0;  // Expired.
   }
 #endif
@@ -301,8 +302,8 @@ __attribute__((weak)) bool achordion_eager_mod(uint8_t mod) {
 
 #ifdef ACHORDION_STREAK
 __attribute__((weak)) bool achordion_streak_continue(uint16_t keycode) {
-  // If any mods other than shift are held, don't continue the streak
-  if (get_mods() & MOD_MASK_CAG) return false;
+  // If any mods other than shift or AltGr are held, don't continue the streak
+  if (get_mods() & (MOD_MASK_CG | MOD_BIT_LALT)) return false;
   // This function doesn't get called for holds, so convert to tap version of keycodes
   if (IS_QK_MOD_TAP(keycode)) keycode = QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
   if (IS_QK_LAYER_TAP(keycode)) keycode = QK_LAYER_TAP_GET_TAP_KEYCODE(keycode);
@@ -325,7 +326,7 @@ __attribute__((weak)) uint16_t achordion_streak_chord_timeout(uint16_t tap_hold_
 
 /** @deprecated Use `achordion_streak_chord_timeout()` instead. */
 __attribute__((weak)) uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
-  return 100;
+  return 200;
 }
 #endif
 
