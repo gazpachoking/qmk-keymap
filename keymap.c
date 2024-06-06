@@ -13,30 +13,41 @@ enum custom_keycodes {
   UKC_CAPS_WORD,
 };
 
-const custom_shift_key_t custom_shift_keys[] = {
-  // {KC_DOT , KC_QUES}, // Shift . is ?
-  // {KC_COMM, KC_EXLM}, // Shift , is !
-  // {KC_MINS, KC_EQL }, // Shift - is =
-  {KC_EQUAL, KC_EXLM}, // Shift = is !
-  {KC_COLN, KC_SCLN}, // Shift : is ;
-};
-uint8_t NUM_CUSTOM_SHIFT_KEYS =
-    sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
-
 enum tap_dance_codes {
   DANCE_0,
 };
 
 #define HOME_ESC LT(3,KC_ESCAPE)
-#define THUMB_ENTER LT(1,KC_ENTER)
+#define THUMB_ENTER LT(3,KC_ENTER)
 #define THUMB_TAB LT(2,KC_TAB)
+#define HOME_A LT(1, KC_A)
+#define HOME_O MT(MOD_LALT, KC_O)
+#define HOME_E MT(MOD_LCTL, KC_E)
+#define HOME_U MT(MOD_LSFT, KC_U)
+#define WIN_COLN MT(MOD_LGUI, KC_F24)  //F24 gets rewritten as colon
+#define HOME_H MT(MOD_RSFT, KC_H)
+#define HOME_T MT(MOD_RCTL, KC_T)
+#define HOME_N MT(MOD_RALT, KC_N)
+#define HOME_S LT(1, KC_S)
+#define WIN_Z MT(MOD_RGUI, KC_Z)
+
+const custom_shift_key_t custom_shift_keys[] = {
+  // {KC_DOT , KC_QUES}, // Shift . is ?
+  // {KC_COMM, KC_EXLM}, // Shift , is !
+  // {KC_MINS, KC_EQL }, // Shift - is =
+  {KC_EQUAL, KC_EXLM}, // Shift = is !
+  {WIN_COLN, KC_SCLN}, // Shift : is ;
+};
+
+uint8_t NUM_CUSTOM_SHIFT_KEYS =
+    sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_voyager(
-    LT(4,KC_GRAVE), KC_1,           KC_2,           KC_3,           KC_4,           KC_5,                                           KC_6,           KC_7,           KC_8,           KC_9,           KC_0,           TD(DANCE_0),
+    LT(4,KC_GRAVE), KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       KC_5,                                           KC_6,           KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       TD(DANCE_0),
     KC_EQUAL,       KC_QUOTE,       KC_COMMA,       KC_DOT,         KC_P,           KC_Y,                                           KC_F,           KC_G,           KC_C,           KC_R,           KC_L,           KC_SLASH,
-    HOME_ESC,       MT(MOD_LGUI, KC_A),MT(MOD_LALT, KC_O),MT(MOD_LCTL, KC_E),MT(MOD_LSFT, KC_U),KC_I,                               KC_D,           MT(MOD_RSFT, KC_H),MT(MOD_RCTL, KC_T),MT(MOD_RALT, KC_N),MT(MOD_RGUI, KC_S),KC_MINUS,
-    QK_LEAD,        KC_COLN,        KC_Q,           KC_J,           KC_K,           KC_X,                                           KC_B,           KC_M,           KC_W,           KC_V,           KC_Z,           KC_UNDS,
+    HOME_ESC,       HOME_A,         HOME_O,         HOME_E,         HOME_U,         KC_I,                                           KC_D,           HOME_H,         HOME_T,         HOME_N,         HOME_S,         KC_MINUS,
+    QK_LEAD,        MT(MOD_LGUI, KC_F24),       KC_Q,           KC_J,           KC_K,           KC_X,                                           KC_B,           KC_M,           KC_W,           KC_V,           WIN_Z,          KC_UNDS,
                                                     THUMB_ENTER,    THUMB_TAB,                                      KC_BSPC,        KC_SPACE
   ),
   [1] = LAYOUT_voyager(
@@ -86,10 +97,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 const uint16_t PROGMEM combo0[] = { KC_1, KC_2, COMBO_END};
 const uint16_t PROGMEM combo1[] = { KC_2, KC_3, COMBO_END};
 const uint16_t PROGMEM combo2[] = { KC_3, KC_4, COMBO_END};
-const uint16_t PROGMEM combo3[] = { KC_G, MT(MOD_RSFT, KC_H), COMBO_END};
-const uint16_t PROGMEM combo4[] = { KC_C, MT(MOD_RCTL, KC_T), COMBO_END};
-const uint16_t PROGMEM combo5[] = { KC_R, MT(MOD_RALT, KC_N), COMBO_END};
-const uint16_t PROGMEM combo6[] = { KC_L, MT(MOD_RGUI, KC_S), COMBO_END};
+const uint16_t PROGMEM combo3[] = { KC_G, HOME_H, COMBO_END};
+const uint16_t PROGMEM combo4[] = { KC_C, HOME_T, COMBO_END};
+const uint16_t PROGMEM combo5[] = { KC_R, HOME_N, COMBO_END};
+const uint16_t PROGMEM combo6[] = { KC_L, HOME_S, COMBO_END};
 const uint16_t PROGMEM combo7[] = { MT(MOD_LSFT, KC_U), MT(MOD_RSFT, KC_H), COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
@@ -189,6 +200,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         rgblight_mode(1);
       }
       return false;
+    case WIN_COLN:
+      if (record->event.pressed && record->tap.count == 1) {
+        SEND_STRING(":");
+		return false;
+      }
+      break;
   }
   return true;
 }
