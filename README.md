@@ -2,17 +2,27 @@
 
 (This is not an officially supported Google product.)
 
-![Dactyl Ergodox](doc/dactyl_ergodox.jpg)
+![ZSA Voyager](doc/voyager.jpg)
 
 This is my [Quantum Mechanical Keyboard (QMK)](https://docs.qmk.fm) keymap for
-the [Dactyl
-Ergodox](https://ohkeycaps.com/products/built-to-order-dactyl-manuform-keyboard).
-Who knew a keyboard [could do so
+the Dactyl Ergodox, ZSA Moonlander, and ZSA Voyager keyboards. Who knew a
+keyboard [could do so
 much?](https://getreuer.info/posts/keyboards/tour/index.html)
 
-### Topics
 
-**Feature libraries**
+## License
+
+This repo uses the Apache License 2.0 except where otherwise indicated. See the
+[LICENSE file](LICENSE.txt) for details.
+
+
+## Feature libraries
+
+Several userspace feature libraries for QMK are developed in this repo. Code is
+under the [features](features/) directory and detailed documentation can be
+found in the links below. For developers, see also my post [developing QMK
+features](https://getreuer.info/posts/keyboards/developing-qmk-features/index.html)
+for general tips on writing userspace libraries and contributing to QMK.
 
 * [Achordion](https://getreuer.info/posts/keyboards/achordion/index.html)
   &ndash; customize the tap-hold decision
@@ -44,88 +54,72 @@ much?](https://getreuer.info/posts/keyboards/tour/index.html)
 * [Sentence Case](https://getreuer.info/posts/keyboards/sentence-case/index.html)
   &ndash; automatically capitalize the first letter of sentences
 
+* [SOCD Cleaner](https://getreuer.info/posts/keyboards/socd-cleaner/index.html)
+  &ndash; enhance WASD for fast inputs for gaming
+
 * [Word selection](https://getreuer.info/posts/keyboards/select-word/index.html)
   &ndash; macro for convenient word or line selection
-
-**QMK**
-
-* [Macro buttons](https://getreuer.info/posts/keyboards/macros/index.html)
-  &ndash; an assortment of practical QMK macros
-
-* [Triggers: reacting to interesting
-  events](https://getreuer.info/posts/keyboards/triggers/index.html) &ndash;
-  layer changes, tap vs. long press, etc.
-
-* [Typing non-English
-  letters](https://getreuer.info/posts/keyboards/non-english/index.html) &ndash;
-  several approaches to type symbols like &auml;, &ccedil;, &lambda;
-
-* [QMK song
-  player](https://getreuer.info/posts/keyboards/qmk-song-player/index.html)
-  &ndash; play QMK song code in your browser 
- 
-**General**
-
-* [Alt keyboard
-  layouts](https://getreuer.info/posts/keyboards/alt-layouts/index.html) &ndash;
-  switching from QWERTY to an alternative keyboard layout
-
-* [Designing a symbol
-  layer](https://getreuer.info/posts/keyboards/symbol-layer/index.html) &ndash;
-  ergonomic and character frequency considerations
-
-* [Questioning the ergonomics of 40%
-  keyboards](https://getreuer.info/posts/keyboards/40-percent-ergo/index.html)
-  &ndash; smaller is not necessarily better
-
-* [PSA: Thumbs can get overuse
-  injuries](https://getreuer.info/posts/keyboards/thumb-ergo/index.html) &ndash;
-  anecdotes, common injuries, countermeasures
-
-* [Keyboard FAQS](https://getreuer.info/posts/keyboards/faqs/index.html) &ndash;
-  thoughts on topics that come up regularly
-
-* [Links about
-  keyboards](https://getreuer.info/posts/keyboards/links/index.html) &ndash;
-  interesting links about keyboards and related topics
 
 
 ## My keymap
 
-Here is a visualization of my keymap. See the [keymap.c](keymap.c) itself for
-full details.
+Here is a visualization of my keymap. See the [Dactyl
+keymap.c](keyboards/handwired/dactyl_promicro/keymaps/getreuer/keymap.c),
+[Moonlander keymap.c](keyboards/zsa/moonlander/keymaps/getreuer/keymap.c), or
+[Voyager keymap.c](keyboards/zsa/voyager/keymaps/getreuer/keymap.c) and
+[getreuer.c](getreuer.c) for full details.
 
 **Base layer** ([Magic
-Sturdy](https://github.com/Ikcelaks/keyboard_layouts/blob/main/magic_sturdy/magic_sturdy.md) with home row mods)
+Sturdy](https://getreuer.info/posts/keyboards/alt-layouts/index.html#magic-sturdy) with home row mods)
 
-![Base layer](doc/layout_base.png)
-
-**QWERTY layer**
-
-![QWERTY layer](doc/layout_qwerty.png)
+![Base layer](doc/layout-0-base.png)
 
 **Symbol layer**
 
-![Symbol layer](doc/layout_symbol.png)
+![Symbol layer](doc/layout-1-symbol.png)
 
-**Mouse layer**
+**Numpad layer**
 
-![Mouse layer](doc/layout_mouse.png)
+![Num layer](doc/layout-2-num.png)
 
-**Adjust layer**
+**Window management layer**
 
-![Adjust layer](doc/layout_adjust.png)
+![Win layer](doc/layout-3-win.png)
 
+**Funky fun layer**
 
-## License
-
-This code uses the Apache License 2.0. See the [LICENSE file](LICENSE.txt) for
-details.
+![Fun layer](doc/layout-4-fun.png)
 
 
 ## Installation
 
-Clone the [QMK firmware](https://github.com/qmk/qmk_firmware) and place this
-repo in `qmk_firmware/keyboards/handwired/dactyl_promicro/keymaps/getreuer`.
+This repo works as an [External QMK
+Userspace](https://docs.qmk.fm/newbs_external_userspace). Instructions on how
+to use it in QMK:
 
+1. [Set up QMK](https://docs.qmk.fm/newbs).
+
+2. Clone this repo locally
+
+   ```sh
+   git clone https://github.com/getreuer/qmk-keymap
+   ```
+
+3. Run the following shell command, replacing "`path/to/qmk-keymap`" with the
+   relative path to your clone of `qmk-keymap` from the previous step:
+
+   ```sh
+   qmk config user.overlay_dir="$(realpath path/to/qmk-keymap)"
+   ```
+
+My keymap may then be compiled and flashed with
+
+```sh
+# Dactyl Ergodox
+qmk flash -kb handwired/dactyl_promicro -km getreuer
+# ZSA Moonlander
+qmk flash -kb zsa/moonlander -km getreuer
+# ZSA Voyager
+qmk flash -kb zsa/voyager -km getreuer
+```
 
