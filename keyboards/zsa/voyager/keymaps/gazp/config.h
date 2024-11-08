@@ -2,7 +2,6 @@
   Set any config.h overrides for your specific keymap here.
   See config.h options at https://docs.qmk.fm/#/config_options?id=the-configh-file
 */
-#define ORYX_CONFIGURATOR
 #undef TAPPING_TERM
 #define TAPPING_TERM 280
 #define QUICK_TAP_TERM 80
@@ -13,17 +12,16 @@
 
 #define LAYER_LOCK_IDLE_TIMEOUT 360000
 #define USB_SUSPEND_WAKEUP_DELAY 0
-#define FIRMWARE_VERSION u8"QlzyV/YoMYy"
-#define RAW_USAGE_PAGE 0xFF60
-#define RAW_USAGE_ID 0x61
+#define SERIAL_NUMBER "QlzyV/Ko4V9"
 #define LAYER_STATE_8BIT
-#define COMBO_COUNT 8
+#define COMBO_COUNT 1
 
 #define TAPPING_TERM_PER_KEY
 #define RGB_MATRIX_STARTUP_SPD 60
 
 #define ACHORDION_STREAK
 #define HOLD_ON_OTHER_KEY_PRESS_PER_KEY
+#define CAPS_WORD_IDLE_TIMEOUT 2000
 // #define CAPS_WORD_INVERT_ON_SHIFT
 // #define BOTH_SHIFTS_TURNS_ON_CAPS_WORD
 
@@ -53,3 +51,4 @@
 #undef ENABLE_RGB_MATRIX_SPLASH
 #undef ENABLE_RGB_MATRIX_MULTISPLASH
 #undef ENABLE_RGB_MATRIX_SOLID_SPLASH
+

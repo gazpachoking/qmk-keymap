@@ -4,6 +4,7 @@
 #include "features/achordion.h"
 #include "features/custom_shift_keys.h"
 #define MOON_LED_LEVEL LED_LEVEL
+#define ML_SAFE_RANGE SAFE_RANGE
 
 enum custom_keycodes {
   RGB_SLD = ML_SAFE_RANGE,
@@ -94,24 +95,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 };
 
-const uint16_t PROGMEM combo0[] = { KC_1, KC_2, COMBO_END};
-const uint16_t PROGMEM combo1[] = { KC_2, KC_3, COMBO_END};
-const uint16_t PROGMEM combo2[] = { KC_3, KC_4, COMBO_END};
-const uint16_t PROGMEM combo3[] = { KC_G, HOME_H, COMBO_END};
-const uint16_t PROGMEM combo4[] = { KC_C, HOME_T, COMBO_END};
-const uint16_t PROGMEM combo5[] = { KC_R, HOME_N, COMBO_END};
-const uint16_t PROGMEM combo6[] = { KC_L, HOME_S, COMBO_END};
-const uint16_t PROGMEM combo7[] = { MT(MOD_LSFT, KC_U), MT(MOD_RSFT, KC_H), COMBO_END};
+const uint16_t PROGMEM combo1[] = { MT(MOD_LSFT, KC_U), MT(MOD_RSFT, KC_H), COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
-    COMBO(combo0, KC_F2),
-    COMBO(combo1, KC_F3),
-    COMBO(combo2, KC_F4),
-    COMBO(combo3, KC_LEFT),
-    COMBO(combo4, KC_DOWN),
-    COMBO(combo5, KC_UP),
-    COMBO(combo6, KC_RIGHT),
-    COMBO(combo7, CW_TOGG),
+    COMBO(combo1, CW_TOGG),
 };
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
@@ -177,20 +164,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   if (!process_custom_shift_keys(keycode, record)) { return false; }
   switch (keycode) {
     case ST_MACRO_0:
-    if (record->event.pressed) {
-      SEND_STRING("../");
-    }
-    break;
+      if (record->event.pressed) {
+        SEND_STRING("../");
+      }
+      break;
     case ST_MACRO_1:
-    if (record->event.pressed) {
-      SEND_STRING(SS_LALT(SS_LCTL(SS_TAP(X_1))) SS_DELAY(100) SS_LALT(SS_LCTL(SS_TAP(X_F1))));
-    }
-    break;
+      if (record->event.pressed) {
+        SEND_STRING(SS_LALT(SS_LCTL(SS_TAP(X_1))) SS_DELAY(100) SS_LALT(SS_LCTL(SS_TAP(X_F1))));
+      }
+      break;
     case ST_MACRO_2:
-    if (record->event.pressed) {
-      SEND_STRING(SS_LALT(SS_LCTL(SS_TAP(X_2))) SS_DELAY(100) SS_LALT(SS_LCTL(SS_TAP(X_F2))));
-    }
-    break;
+      if (record->event.pressed) {
+        SEND_STRING(SS_LALT(SS_LCTL(SS_TAP(X_2))) SS_DELAY(100) SS_LALT(SS_LCTL(SS_TAP(X_F2))));
+      }
+      break;
     case UKC_CAPS_WORD:
       caps_word_toggle();
       return true;
