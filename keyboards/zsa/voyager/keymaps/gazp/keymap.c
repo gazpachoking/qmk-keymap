@@ -33,10 +33,10 @@ enum tap_dance_codes {
 #define WIN_Z MT(MOD_RGUI, KC_Z)
 
 const custom_shift_key_t custom_shift_keys[] = {
-  // {KC_DOT , KC_QUES}, // Shift . is ?
-  // {KC_COMM, KC_EXLM}, // Shift , is !
-  // {KC_MINS, KC_EQL }, // Shift - is =
-  {KC_EQUAL, KC_EXLM}, // Shift = is !
+  {KC_DOT , KC_QUES}, // Shift . is ?
+  {KC_COMM, KC_EXLM}, // Shift , is !
+  {KC_SLASH, KC_BSLS }, // Shift - is =
+  {KC_EQUAL, KC_EQUAL}, // Shift = is !
   {WIN_COLN, KC_SCLN}, // Shift : is ;
 };
 
