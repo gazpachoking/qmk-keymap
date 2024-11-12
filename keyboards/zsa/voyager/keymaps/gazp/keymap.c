@@ -35,9 +35,11 @@ enum tap_dance_codes {
 const custom_shift_key_t custom_shift_keys[] = {
   {KC_DOT , KC_QUES}, // Shift . is ?
   {KC_COMM, KC_EXLM}, // Shift , is !
-  {KC_SLASH, KC_BSLS }, // Shift - is =
-  {KC_EQUAL, KC_EQUAL}, // Shift = is !
+  {KC_SLASH, KC_BSLS },
   {WIN_COLN, KC_SCLN}, // Shift : is ;
+  // These sometimes shift when they shouldn't. Stop that.
+  {KC_EQUAL, KC_EQUAL},
+  {KC_MINUS, KC_MINUS},
 };
 
 uint8_t NUM_CUSTOM_SHIFT_KEYS =
@@ -48,7 +50,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     LT(4,KC_GRAVE), KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       KC_5,                                           KC_6,           KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       TD(DANCE_0),
     KC_EQUAL,       KC_QUOTE,       KC_COMMA,       KC_DOT,         KC_P,           KC_Y,                                           KC_F,           KC_G,           KC_C,           KC_R,           KC_L,           KC_SLASH,
     HOME_ESC,       HOME_A,         HOME_O,         HOME_E,         HOME_U,         KC_I,                                           KC_D,           HOME_H,         HOME_T,         HOME_N,         HOME_S,         KC_MINUS,
-    QK_LEAD,        MT(MOD_LGUI, KC_F24),       KC_Q,           KC_J,           KC_K,           KC_X,                                           KC_B,           KC_M,           KC_W,           KC_V,           WIN_Z,          KC_UNDS,
+    QK_LEAD,        WIN_COLN,       KC_Q,           KC_J,           KC_K,           KC_X,                                           KC_B,           KC_M,           KC_W,           KC_V,           WIN_Z,          KC_UNDS,
                                                     THUMB_ENTER,    THUMB_TAB,                                      KC_BSPC,        KC_SPACE
   ),
   [1] = LAYOUT_voyager(
@@ -103,10 +105,13 @@ combo_t key_combos[COMBO_COUNT] = {
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case MT(MOD_LSFT, KC_U):
-            return TAPPING_TERM -30;
-        case MT(MOD_RSFT, KC_H):
-            return TAPPING_TERM -30;
+        case HOME_O:
+        case HOME_U:
+        case HOME_E:
+            // Left side mods are shorter so that eager mods for mouse are faster.
+            return 180;
+        case HOME_H:
+            return TAPPING_TERM - 30;
         default:
             return TAPPING_TERM;
     }
