@@ -1,4 +1,5 @@
 #include QMK_KEYBOARD_H
+#include "layout.h"
 #include "version.h"
 #include "i18n.h"
 #include "features/achordion.h"
@@ -8,14 +9,14 @@
 
 enum custom_keycodes {
   RGB_SLD = ML_SAFE_RANGE,
-  ST_MACRO_0,
-  ST_MACRO_1,
-  ST_MACRO_2,
+  M_UPDIR,
+  M_LAPSW,
+  M_DESKSW,
   UKC_CAPS_WORD,
 };
 
 enum tap_dance_codes {
-  DANCE_0,
+  D_PSCR,
 };
 
 enum layers {
@@ -56,52 +57,88 @@ uint8_t NUM_CUSTOM_SHIFT_KEYS =
     sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-  [BASE] = LAYOUT_voyager(
-    HOME_GRAVE,     KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       KC_5,                                           KC_6,           KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       TD(DANCE_0),
-    KC_EQUAL,       KC_QUOTE,       KC_COMMA,       KC_DOT,         KC_P,           KC_Y,                                           KC_F,           KC_G,           KC_C,           KC_R,           KC_L,           KC_SLASH,
-    HOME_ESC,       HOME_A,         HOME_O,         HOME_E,         HOME_U,         KC_I,                                           KC_D,           HOME_H,         HOME_T,         HOME_N,         HOME_S,         KC_MINUS,
-    QK_LEAD,        WIN_COLN,       KC_Q,           KC_J,           KC_K,           KC_X,                                           KC_B,           KC_M,           KC_W,           KC_V,           WIN_Z,          KC_UNDS,
-                                                    THUMB_ENTER,    THUMB_TAB,                                      KC_BSPC,        KC_SPACE
+  [BASE] = LAYOUT_LR(
+    HOME_GRAVE,KC_LEFT,   KC_DOWN,   KC_UP,     KC_RIGHT,  KC_5,
+    KC_EQUAL,  KC_QUOTE,  KC_COMMA,  KC_DOT,    KC_P,      KC_Y,
+    HOME_ESC,  HOME_A,    HOME_O,    HOME_E,    HOME_U,    KC_I,
+    QK_LEAD,   WIN_COLN,  KC_Q,      KC_J,      KC_K,      KC_X,
+                                                THUMB_ENTER,  THUMB_TAB,
+
+               KC_6,      KC_LEFT,   KC_DOWN,   KC_UP,     KC_RIGHT,  TD(D_PSCR),
+               KC_F,      KC_G,      KC_C,      KC_R,      KC_L,      KC_SLASH,
+               KC_D,      HOME_H,    HOME_T,    HOME_N,    HOME_S,    KC_MINUS,
+               KC_B,      KC_M,      KC_W,      KC_V,      WIN_Z,     KC_UNDS,
+    KC_BSPC,   KC_SPACE
   ),
   // gaming
-  [GAME] = LAYOUT_voyager(
-    KC_TRANSPARENT, KC_1,           KC_2,           KC_3,           KC_4,           KC_5,                                           KC_6,           KC_7,           KC_8,           KC_9,           KC_0,           KC_TRANSPARENT,
-    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
-    KC_ESC,         KC_A,           KC_O,           KC_E,           KC_U,           KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_H,           KC_T,           KC_N,           KC_S,           KC_TRANSPARENT,
-    KC_W,  MT(MOD_LSFT,KC_SCLN),MT(MOD_LCTL,KC_Q),MT(MOD_LALT,KC_J),KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_Z,           KC_RIGHT_SHIFT,
-                                                    KC_ENTER,       KC_TAB,                                         KC_TRANSPARENT, KC_TRANSPARENT
+  [GAME] = LAYOUT_LR(
+    _______,   KC_1,      KC_2,      KC_3,      KC_4,      KC_5,
+    _______,   _______,   _______,   _______,   _______,   _______,
+    KC_ESC,    KC_A,      KC_O,      KC_E,      KC_U,      _______,
+    KC_W,      KC_LSFT,   CTL_T(KC_Q),ALT_T(KC_J),_______, _______,
+                                                           KC_ENTER,  KC_TAB,
+
+               KC_6,      KC_7,      KC_8,      KC_9,      KC_0,      _______,
+               _______,   _______,   _______,   _______,   _______,   _______,
+               _______,   KC_H,      KC_T,      KC_N,      KC_S,      _______,
+               _______,   _______,   _______,   _______,   KC_Z,      KC_RSFT,
+    _______,   _______
   ),
   // symbol
-  [SYM] = LAYOUT_voyager(
-    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
-    KC_TRANSPARENT, KC_DQUO,        KC_LABK,        KC_RABK,        KC_GRAVE,       KC_DOT,                                         KC_AMPR,        KC_RBRC,        KC_LBRC,        KC_CIRC,        KC_TRANSPARENT, KC_QUES,
-    KC_TRANSPARENT, KC_EXLM,        KC_KP_MINUS,    KC_KP_PLUS,     KC_EQUAL,       KC_HASH,                                        KC_PIPE,        KC_RPRN,        KC_LPRN,        KC_AT,          KC_PERC,        KC_UNDS,
-    KC_TRANSPARENT, KC_TRANSPARENT, KC_SLASH,       KC_KP_ASTERISK, KC_BSLS,        ST_MACRO_0,                                     KC_TILD,        KC_RCBR,        KC_LCBR,        KC_DLR,         KC_TRANSPARENT, KC_TRANSPARENT,
-                                                    KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
+  [SYM] = LAYOUT_LR(
+    _______,   _______,   _______,   _______,   _______,   _______,
+    _______,   KC_DQUO,   KC_LABK,   KC_RABK,   KC_GRAVE,  KC_DOT,
+    _______,   KC_EXLM,   KC_PMNS,   KC_PPLS,   KC_EQUAL,  KC_HASH,
+    _______,   _______,   KC_SLASH,  KC_PAST,   KC_BSLS,   M_UPDIR,
+                                                           _______,   _______,
+
+               _______,   _______,   _______,   _______,   _______,   _______,
+               KC_AMPR,   KC_RBRC,   KC_LBRC,   KC_CIRC,   _______,   KC_QUES,
+               KC_PIPE,   KC_RPRN,   KC_LPRN,   KC_AT,     KC_PERC,   KC_UNDS,
+               KC_TILD,   KC_RCBR,   KC_LCBR,   KC_DLR,    _______,   _______,
+    _______,   _______
   ),
   // num
-  [NUM] = LAYOUT_voyager(
-    KC_TRANSPARENT, KC_F1,          KC_F2,          KC_F3,          KC_F4,          KC_F5,                                          KC_F6,          KC_F7,          KC_F8,          KC_F9,          KC_F10,         QK_LLCK,
-    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_0,           KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_7,           KC_8,           KC_9,           KC_KP_ASTERISK, KC_KP_SLASH,
-    QK_LLCK,        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_0,           KC_4,           KC_5,           KC_6,           KC_0,           KC_KP_MINUS,
-    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_0,           KC_1,           KC_2,           KC_3,           KC_KP_PLUS,     KC_EQUAL,
-                                                    KC_TRANSPARENT, QK_LLCK,                                        KC_TRANSPARENT, KC_TRANSPARENT
+  [NUM] = LAYOUT_LR(
+    _______,   KC_F1,     KC_F2,     KC_F3,     KC_F4,     KC_F5,
+    _______,   _______,   _______,   _______,   KC_0,      _______,
+    QK_LLCK,   _______,   _______,   _______,   _______,   _______,
+    _______,   _______,   _______,   _______,   _______,   _______,
+                                                           _______,   QK_LLCK,
+
+               KC_F6,     KC_F7,     KC_F8,     KC_F9,     KC_F10,    QK_LLCK,
+               _______,   KC_7,      KC_8,      KC_9,      KC_PAST,   KC_KP_SLASH,
+               KC_0,      KC_4,      KC_5,      KC_6,      KC_0,      KC_KP_MINUS,
+               KC_0,      KC_1,      KC_2,      KC_3,      KC_KP_PLUS,KC_EQUAL,
+    _______,   _______
   ),
   // nav
-  [NAV] = LAYOUT_voyager(
-    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, QK_LLCK,
-    KC_TRANSPARENT, KC_TRANSPARENT, KC_AUDIO_VOL_DOWN,KC_MEDIA_PLAY_PAUSE,KC_AUDIO_VOL_UP,KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_HOME,        KC_PGDN,        KC_PAGE_UP,     KC_END,         KC_TRANSPARENT,
-    QK_LLCK,        KC_LEFT_GUI,    KC_LEFT_ALT,    KC_LEFT_CTRL,   KC_LEFT_SHIFT,  KC_TRANSPARENT,                                 KC_DELETE,      KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       KC_TRANSPARENT,
-    KC_TRANSPARENT, KC_TRANSPARENT, KC_PC_CUT,      KC_PC_COPY,     KC_PC_PASTE,    KC_TRANSPARENT,                                 KC_TRANSPARENT, LALT(KC_LEFT),  LCTL(LSFT(KC_TAB)),LCTL(KC_TAB),   LALT(KC_RIGHT), KC_TRANSPARENT,
-                                                    KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
+  [NAV] = LAYOUT_LR(
+    _______,   _______,   _______,   _______,   _______,   _______,
+    _______,   _______,   KC_VOLD,   KC_MPLY,   KC_VOLU,   _______,
+    QK_LLCK,   KC_LGUI,   KC_LALT,   KC_LCTL,   KC_LSFT,   _______,
+    _______,   _______,   KC_PC_CUT, KC_COPY,   KC_PASTE,  _______,
+                                                           _______,   _______,
+
+               _______,   _______,   _______,   _______,   _______,   QK_LLCK,
+               _______,   KC_HOME,   KC_PGDN,   KC_PAGE_UP,KC_END,    _______,
+               KC_DELETE, KC_LEFT,   KC_DOWN,   KC_UP,     KC_RIGHT,  _______,
+               _______,   A(KC_LEFT),RCS(KC_TAB),C(KC_TAB),A(KC_RIGHT),_______,
+    _______,   _______
   ),
   // fn
-  [FUN] = LAYOUT_voyager(
-    KC_TRANSPARENT, TO(BASE),       TO(GAME),       KC_TRANSPARENT, ST_MACRO_1,     ST_MACRO_2,                                     KC_TRANSPARENT, KC_F10,         KC_F11,         KC_F12,         RGB_HUI,        RGB_MODE_FORWARD,
-    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_PSCR,        KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_F7,          KC_F8,          KC_F9,          RGB_HUD,        RGB_SPI,
-    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_F4,          KC_F5,          KC_F6,          RGB_VAI,        RGB_SPD,
-    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_F1,          KC_F2,          KC_F3,          RGB_VAD,        RGB_TOG,
-                                                    KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
+  [FUN] = LAYOUT_LR(
+    _______,   TO(BASE),  TO(GAME),  _______,   M_LAPSW,   M_DESKSW,
+    _______,   _______,   _______,   _______,   KC_PSCR,   _______,
+    _______,   _______,   _______,   _______,   _______,   _______,
+    _______,   _______,   _______,   _______,   _______,   _______,
+                                                           _______,   _______,
+
+               _______,   KC_F10,    KC_F11,    KC_F12,    RGB_HUI,   RGB_MODE_FORWARD,
+               _______,   KC_F7,     KC_F8,     KC_F9,     RGB_HUD,   RGB_SPI,
+               _______,   KC_F4,     KC_F5,     KC_F6,     RGB_VAI,   RGB_SPD,
+               _______,   KC_F1,     KC_F2,     KC_F3,     RGB_VAD,   RGB_TOG,
+    _______,   _______
   ),
 };
 
@@ -176,17 +213,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   if (!process_achordion(keycode, record)) { return false; }
   if (!process_custom_shift_keys(keycode, record)) { return false; }
   switch (keycode) {
-    case ST_MACRO_0:
+    case M_UPDIR:
       if (record->event.pressed) {
         SEND_STRING("../");
       }
       break;
-    case ST_MACRO_1:
+    case M_LAPSW:
       if (record->event.pressed) {
         SEND_STRING(SS_LALT(SS_LCTL(SS_TAP(X_1))) SS_DELAY(100) SS_LALT(SS_LCTL(SS_TAP(X_F1))));
       }
       break;
-    case ST_MACRO_2:
+    case M_DESKSW:
       if (record->event.pressed) {
         SEND_STRING(SS_LALT(SS_LCTL(SS_TAP(X_2))) SS_DELAY(100) SS_LALT(SS_LCTL(SS_TAP(X_F2))));
       }
@@ -280,7 +317,7 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
 }
 
 tap_dance_action_t tap_dance_actions[] = {
-        [DANCE_0] = ACTION_TAP_DANCE_DOUBLE(KC_BSLS, KC_PSCR),
+  [D_PSCR] = ACTION_TAP_DANCE_DOUBLE(KC_BSLS, KC_PSCR),
 };
 
 void leader_end_user(void) {
