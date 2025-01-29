@@ -154,7 +154,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case HOME_U:
         case HOME_E:
             // Left side mods are shorter so that eager mods for mouse are faster.
-            return 180;
+            return 200;
         case HOME_H:
             return TAPPING_TERM - 30;
         default:
