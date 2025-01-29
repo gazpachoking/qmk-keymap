@@ -1,4 +1,4 @@
-// Copyright 2022, 2024 Google LLC
+// Copyright 2022-2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -70,8 +70,8 @@ bool process_sentence_case(uint16_t keycode, keyrecord_t* record);
  * Matrix task function for Sentence Case.
  *
  * If using `SENTENCE_CASE_TIMEOUT`, call this function from your
- * `matrix_scan_user()` function in keymap.c. (If no timeout is set, calling
- * `sentence_case_task()` has no effect.)
+ * `housekeeping_task_user()` function in keymap.c. (If no timeout is set,
+ * calling `sentence_case_task()` has no effect.)
  */
 #if SENTENCE_CASE_TIMEOUT > 0
 void sentence_case_task(void);
@@ -83,6 +83,7 @@ void sentence_case_on(void); /**< Enables Sentence Case. */
 void sentence_case_off(void); /**< Disables Sentence Case. */
 void sentence_case_toggle(void); /**< Toggles Sentence Case. */
 bool is_sentence_case_on(void); /**< Gets whether currently enabled. */
+bool is_sentence_case_primed(void); /**< Whether currently primed. */
 void sentence_case_clear(void); /**< Clears Sentence Case to initial state. */
 
 /**

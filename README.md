@@ -27,18 +27,12 @@ for general tips on writing userspace libraries and contributing to QMK.
 * [Achordion](https://getreuer.info/posts/keyboards/achordion/index.html)
   &ndash; customize the tap-hold decision
 
-* [Autocorrection](https://getreuer.info/posts/keyboards/autocorrection/index.html)
-  &ndash; run rudimentary autocorrection on your keyboard
-
-* [Caps Word](https://getreuer.info/posts/keyboards/caps-word/index.html)
-  &ndash; modern alternative to Caps Lock
-
 * [Custom shift
   keys](https://getreuer.info/posts/keyboards/custom-shift-keys/index.html)
   &ndash; they're surprisingly tricky to get right; here is my approach
 
-* [Layer Lock key](https://getreuer.info/posts/keyboards/layer-lock/index.html)
-  &ndash; macro to stay in the current layer
+* [keycode_string()](https://getreuer.info/posts/keyboards/keycode-string/index.html)
+  &ndash; format keycodes as human-readable strings
 
 * [Mouse Turbo
   Click](https://getreuer.info/posts/keyboards/mouse-turbo-click/index.html)
@@ -48,8 +42,8 @@ for general tips on writing userspace libraries and contributing to QMK.
   Mouse](https://getreuer.info/posts/keyboards/orbital-mouse/index.html) &ndash;
   a polar approach to mouse key control
 
-* [Repeat Key](https://getreuer.info/posts/keyboards/repeat-key/index.html)
-  &ndash; an extensible "repeat last key" implementation
+* [PaletteFx](https://getreuer.info/posts/keyboards/palettefx/index.html) &ndash;
+  palette-based animated RGB matrix lighting effects
 
 * [Sentence Case](https://getreuer.info/posts/keyboards/sentence-case/index.html)
   &ndash; automatically capitalize the first letter of sentences
@@ -60,14 +54,32 @@ for general tips on writing userspace libraries and contributing to QMK.
 * [Word selection](https://getreuer.info/posts/keyboards/select-word/index.html)
   &ndash; macro for convenient word or line selection
 
+The following were originally developed here and have since graduated to become
+QMK core features. It is recommended to use the QMK core implementations, but
+(perhaps for sake of customization or curiosity) you may continue to use these
+userspace versions:
+
+* [Autocorrection](https://getreuer.info/posts/keyboards/autocorrection/index.html)
+  &ndash; userspace version of [QMK's
+  Autocorrect](https://docs.qmk.fm/features/autocorrect)
+
+* [Caps Word](https://getreuer.info/posts/keyboards/caps-word/index.html)
+  &ndash; userspace version of [QMK's Caps
+  Word](https://docs.qmk.fm/features/caps_word)
+
+* [Layer Lock key](https://getreuer.info/posts/keyboards/layer-lock/index.html)
+  &ndash; userspace version of [QMK's Layer
+  Lock](https://docs.qmk.fm/features/layer_lock)
+
+* [Repeat Key](https://getreuer.info/posts/keyboards/repeat-key/index.html)
+  &ndash; userspace version of [QMK's Repeat
+  Key](https://docs.qmk.fm/features/repeat_key)
+
 
 ## My keymap
 
-Here is a visualization of my keymap. See the [Dactyl
-keymap.c](keyboards/handwired/dactyl_promicro/keymaps/getreuer/keymap.c),
-[Moonlander keymap.c](keyboards/zsa/moonlander/keymaps/getreuer/keymap.c), or
-[Voyager keymap.c](keyboards/zsa/voyager/keymaps/getreuer/keymap.c) and
-[getreuer.c](getreuer.c) for full details.
+Here is a visualization of my keymap. See [getreuer.c](getreuer.c) for full
+details.
 
 **Base layer** ([Magic
 Sturdy](https://getreuer.info/posts/keyboards/alt-layouts/index.html#magic-sturdy) with home row mods)
@@ -78,17 +90,25 @@ Sturdy](https://getreuer.info/posts/keyboards/alt-layouts/index.html#magic-sturd
 
 ![Symbol layer](doc/layout-1-symbol.png)
 
+**Navigation layer**
+
+![Nav layer](doc/layout-2-nav.png)
+
 **Numpad layer**
 
-![Num layer](doc/layout-2-num.png)
+![Num layer](doc/layout-3-num.png)
 
 **Window management layer**
 
-![Win layer](doc/layout-3-win.png)
+![Win layer](doc/layout-4-win.png)
 
 **Funky fun layer**
 
-![Fun layer](doc/layout-4-fun.png)
+![Fun layer](doc/layout-5-fun.png)
+
+**Extras and mouse layer**
+
+![Ext layer](doc/layout-6-ext.png)
 
 
 ## Installation

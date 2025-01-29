@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2024-2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 COMBO_ENABLE = yes
 EXTRAKEY_ENABLE = yes
 LTO_ENABLE = yes
-MOUSEKEY_ENABLE = yes
+MOUSEKEY_ENABLE = no
 REPEAT_KEY_ENABLE = yes
 UNICODE_ENABLE = no
 UNICODEMAP_ENABLE = no
@@ -26,11 +26,13 @@ AUTOCORRECT_ENABLE ?= yes
 CAPS_WORD_ENABLE ?= yes
 CONSOLE_ENABLE ?= no
 GRAVE_ESC_ENABLE ?= no
+LAYER_LOCK_ENABLE ?= yes
 NKRO_ENABLE ?= no
+RGB_MATRIX_CUSTOM_USER ?= yes
 SPACE_CADET_ENABLE ?= no
 TAP_DANCE_ENABLE ?= no
 
-ACHORDION_ENABLE ?= yes
+ACHORDION_ENABLE ?= no
 ifeq ($(strip $(ACHORDION_ENABLE)), yes)
 	OPT_DEFS += -DACHORDION_ENABLE
 	SRC += features/achordion.c
@@ -42,13 +44,13 @@ ifeq ($(strip $(CUSTOM_SHIFT_KEYS_ENABLE)), yes)
 	SRC += features/custom_shift_keys.c
 endif
 
-LAYER_LOCK_ENABLE ?= yes
-ifeq ($(strip $(LAYER_LOCK_ENABLE)), yes)
-	OPT_DEFS += -DLAYER_LOCK_ENABLE
-	SRC += features/layer_lock.c
+KEYCODE_STRING_ENABLE ?= yes
+ifeq ($(strip $(KEYCODE_STRING_ENABLE)), yes)
+	OPT_DEFS += -DKEYCODE_STRING_ENABLE
+	SRC += features/keycode_string.c
 endif
 
-ORBITAL_MOUSE_ENABLE ?= no
+ORBITAL_MOUSE_ENABLE ?= yes
 ifeq ($(strip $(ORBITAL_MOUSE_ENABLE)), yes)
 	MOUSE_ENABLE = yes
 	OPT_DEFS += -DORBITAL_MOUSE_ENABLE
@@ -59,5 +61,11 @@ SENTENCE_CASE_ENABLE ?= yes
 ifeq ($(strip $(SENTENCE_CASE_ENABLE)), yes)
 	OPT_DEFS += -DSENTENCE_CASE_ENABLE
 	SRC += features/sentence_case.c
+endif
+
+SELECT_WORD_ENABLE ?= yes
+ifeq ($(strip $(SELECT_WORD_ENABLE)), yes)
+	OPT_DEFS += -DSELECT_WORD_ENABLE
+	SRC += features/select_word.c
 endif
 
