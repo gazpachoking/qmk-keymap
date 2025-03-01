@@ -1,11 +1,15 @@
 #include QMK_KEYBOARD_H
+#include "voyager.h"
 #include "layout.h"
 #include "version.h"
 #include "i18n.h"
-#include "features/achordion.h"
+//#include "features/achordion.h"
 #include "features/custom_shift_keys.h"
 #define MOON_LED_LEVEL LED_LEVEL
 #define ML_SAFE_RANGE SAFE_RANGE
+#ifdef RGB_MATRIX_CUSTOM_USER
+#include "features/palettefx.h"
+#endif  // RGB_MATRIX_CUSTOM_USER
 
 enum custom_keycodes {
   RGB_SLD = ML_SAFE_RANGE,
@@ -55,6 +59,24 @@ const custom_shift_key_t custom_shift_keys[] = {
 
 uint8_t NUM_CUSTOM_SHIFT_KEYS =
     sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
+
+#ifdef CHORDAL_HOLD
+// Handedness for Chordal Hold (https://github.com/qmk/qmk_firmware/pull/24560)
+const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
+  LAYOUT_LR(
+  '*'    , '*'    , '*'    , '*'    , '*'    , '*'    ,
+  '*'    , 'L'    , 'L'    , 'L'    , 'L'    , 'L'    ,
+  '*'    , 'L'    , 'L'    , 'L'    , 'L'    , 'L'    ,
+  '*'    , 'L'    , 'L'    , 'L'    , 'L'    , 'L'    ,
+                                               '*'    , '*'    ,
+
+                    '*'    , '*'    , '*'    , '*'    , '*'    , '*'    ,
+                    'R'    , 'R'    , 'R'    , 'R'    , 'R'    , '*'    ,
+                    'R'    , 'R'    , 'R'    , 'R'    , 'R'    , '*'    ,
+                    'R'    , 'R'    , 'R'    , 'R'    , 'R'    , '*'    ,
+           '*'    , '*'
+);
+#endif  // CHORDAL_HOLD
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [BASE] = LAYOUT_LR(
@@ -150,12 +172,14 @@ combo_t key_combos[COMBO_COUNT] = {
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case HOME_O:
-        case HOME_U:
-        case HOME_E:
-            // Left side mods are shorter so that eager mods for mouse are faster.
-            return 200;
+        // case HOME_O:
+        // case HOME_U:
+        // case HOME_E:
+        //     // Left side mods are shorter so that eager mods for mouse are faster.
+        //     return 200;
         case HOME_H:
+        case HOME_U:
+            // shift keys have lower tapping term
             return TAPPING_TERM - 30;
         default:
             return TAPPING_TERM;
@@ -165,7 +189,14 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 extern rgb_config_t rgb_matrix_config;
 
 void keyboard_post_init_user(void) {
-  rgb_matrix_enable();
+#if RGB_MATRIX_CUSTOM_USER
+  uint8_t palette_index = PALETTEFX_AMBER;
+  rgb_matrix_sethsv_noeeprom(RGB_MATRIX_HUE_STEP * palette_index, 255, 255);
+  rgb_matrix_mode_noeeprom(RGB_MATRIX_CUSTOM_PALETTEFX_FLOW);
+  rgb_matrix_set_speed_noeeprom(32);
+  rgb_matrix_enable_noeeprom();
+#endif  // RGB_MATRIX_CUSTOM_USER
+  
   debug_enable=false;
 }
 
@@ -210,7 +241,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #ifdef CONSOLE_ENABLE
   uprintf("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
 #endif
-  if (!process_achordion(keycode, record)) { return false; }
+  // if (!process_achordion(keycode, record)) { return false; }
   if (!process_custom_shift_keys(keycode, record)) { return false; }
   switch (keycode) {
     case M_UPDIR:
@@ -248,66 +279,66 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 void matrix_scan_user(void) {
-  achordion_task();
+  // achordion_task();
 }
 
-uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
-  switch (tap_hold_keycode) {
-    case THUMB_ENTER:
-    case THUMB_TAB:
-    case HOME_ESC:
-      return 0;  // Bypass Achordion for these keys.
-  }
-  return 800;
-}
+// uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
+//   switch (tap_hold_keycode) {
+//     case THUMB_ENTER:
+//     case THUMB_TAB:
+//     case HOME_ESC:
+//       return 0;  // Bypass Achordion for these keys.
+//   }
+//   return 800;
+// }
 
-uint16_t achordion_streak_chord_timeout(uint16_t tap_hold_keycode, uint16_t next_keycode) {
-  if (IS_QK_LAYER_TAP(tap_hold_keycode)) {
-    return 0;  // Disable streak detection on layer-tap keys.
-  }
-
-  // mod-enter should be allowed in streaks (for alt-enter after web address)
-  if (next_keycode == THUMB_ENTER) return 0;
-
-  // Otherwise, tap_hold_keycode is a mod-tap key.
-  uint8_t mod = mod_config(QK_MOD_TAP_GET_MODS(tap_hold_keycode));
-  // ctrl-v should be allowed in streaks
-  if (mod & MOD_MASK_CTRL && next_keycode == KC_V) return 0;
-  if ((mod & MOD_MASK_SHIFT) != 0) {
-    return 0;  // A shorter streak timeout for Shift mod-tap keys.
-  } else {
-    return 330;  // A longer timeout otherwise.
-  }
-}
-
-bool achordion_chord(uint16_t tap_hold_keycode,
-                     keyrecord_t* tap_hold_record,
-                     uint16_t other_keycode,
-                     keyrecord_t* other_record) {
-  // Allow same hand holds with the left column and left thumb cluster
-  // whethere they are the hold or tap key
-  //left thumb cluster
-  if (other_record->event.key.row == 5) { return true; }
-  //first column on left half
-  if (other_record->event.key.col == 1 && other_record->event.key.row < 4) { return true; }
-  if (tap_hold_record->event.key.row == 5) { return true; }
-  if (tap_hold_record->event.key.col == 1 && tap_hold_record->event.key.row < 4) { return true; }
-
-  // Otherwise, follow the opposite hands rule.
-  return achordion_opposite_hands(tap_hold_record, other_record);
-}
-
-bool achordion_eager_mod(uint8_t mod) {
-  switch (mod) {
-    case MOD_LSFT:
-    case MOD_LCTL:
-    case MOD_LALT:
-      return true;  // Eagerly apply left mods for use with mouse.
-
-    default:
-      return false;
-  }
-}
+// uint16_t achordion_streak_chord_timeout(uint16_t tap_hold_keycode, uint16_t next_keycode) {
+//   if (IS_QK_LAYER_TAP(tap_hold_keycode)) {
+//     return 0;  // Disable streak detection on layer-tap keys.
+//   }
+//
+//   // mod-enter should be allowed in streaks (for alt-enter after web address)
+//   if (next_keycode == THUMB_ENTER) return 0;
+//
+//   // Otherwise, tap_hold_keycode is a mod-tap key.
+//   uint8_t mod = mod_config(QK_MOD_TAP_GET_MODS(tap_hold_keycode));
+//   // ctrl-v should be allowed in streaks
+//   if (mod & MOD_MASK_CTRL && next_keycode == KC_V) return 0;
+//   if ((mod & MOD_MASK_SHIFT) != 0) {
+//     return 0;  // A shorter streak timeout for Shift mod-tap keys.
+//   } else {
+//     return 330;  // A longer timeout otherwise.
+//   }
+// }
+//
+// bool achordion_chord(uint16_t tap_hold_keycode,
+//                      keyrecord_t* tap_hold_record,
+//                      uint16_t other_keycode,
+//                      keyrecord_t* other_record) {
+//   // Allow same hand holds with the left column and left thumb cluster
+//   // whethere they are the hold or tap key
+//   //left thumb cluster
+//   if (other_record->event.key.row == 5) { return true; }
+//   //first column on left half
+//   if (other_record->event.key.col == 1 && other_record->event.key.row < 4) { return true; }
+//   if (tap_hold_record->event.key.row == 5) { return true; }
+//   if (tap_hold_record->event.key.col == 1 && tap_hold_record->event.key.row < 4) { return true; }
+//
+//   // Otherwise, follow the opposite hands rule.
+//   return achordion_opposite_hands(tap_hold_record, other_record);
+// }
+//
+// bool achordion_eager_mod(uint8_t mod) {
+//   switch (mod) {
+//     case MOD_LSFT:
+//     case MOD_LCTL:
+//     case MOD_LALT:
+//       return true;  // Eagerly apply left mods for use with mouse.
+//
+//     default:
+//       return false;
+//   }
+// }
 
 bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
   // If thumb cluster or left column initiate a multi key press, it's definitely a hold
