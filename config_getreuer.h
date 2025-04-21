@@ -21,11 +21,11 @@
 // Tap-hold configuration for home row mods.
 #define TAPPING_TERM 225
 #define TAPPING_TERM_PER_KEY
+#define CHORDAL_HOLD
 #define PERMISSIVE_HOLD
 #define QUICK_TAP_TERM_PER_KEY
 
-// Enable Chordal Hold (https://github.com/qmk/qmk_firmware/pull/24560)
-#define CHORDAL_HOLD
+#define TAP_FLOW_TERM 125
 
 #define NO_ACTION_MACRO
 #define NO_ACTION_FUNCTION
@@ -57,10 +57,6 @@
       {24, 24, 24, 32, 62, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72}
 //     |               |               |               |           |
 // t = 0.000           1.024           2.048           3.072       3.840 s
-
-// Enable all effects and palettes in PaletteFx.
-#define PALETTEFX_ENABLE_ALL_EFFECTS
-#define PALETTEFX_ENABLE_ALL_PALETTES
 
 #ifdef AUDIO_ENABLE
 #define STARTUP_SONG SONG(NO_SOUND)

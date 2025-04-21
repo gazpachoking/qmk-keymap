@@ -1,4 +1,4 @@
-// Copyright 2022-2024 Google LLC
+// Copyright 2022-2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,9 @@
  */
 
 #include "achordion.h"
+
+#pragma message \
+    "Achordion has evolved into core QMK feature Chordal Hold! To use it, update your QMK set up and see https://docs.qmk.fm/tap_hold#chordal-hold"
 
 #if !defined(IS_QK_MOD_TAP)
 // Attempt to detect out-of-date QMK installation, which would fail with
@@ -261,7 +264,7 @@ bool process_achordion(uint16_t keycode, keyrecord_t* record) {
       // Edge case involving LT + Repeat Key: in a sequence of "LT down, other
       // down" where "other" is on the other layer in the same position as
       // Repeat or Alternate Repeat, the repeated keycode is set instead of the
-      // the one on the switched-to layer. Here we correct that.
+      // one on the switched-to layer. Here we correct that.
       if (get_repeat_key_count() != 0 && IS_QK_LAYER_TAP(tap_hold_keycode)) {
         record->keycode = KC_NO;  // Forget the repeated keycode.
         clear_weak_mods();
