@@ -153,10 +153,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______,   _______,   _______,   _______,   _______,   _______,
                                                            _______,   _______,
 
-               _______,   KC_F10,    KC_F11,    KC_F12,    RGB_HUI,   RGB_MODE_FORWARD,
-               _______,   KC_F7,     KC_F8,     KC_F9,     RGB_HUD,   RGB_SPI,
-               _______,   KC_F4,     KC_F5,     KC_F6,     RGB_VAI,   RGB_SPD,
-               _______,   KC_F1,     KC_F2,     KC_F3,     RGB_VAD,   RGB_TOG,
+               _______,   KC_F10,    KC_F11,    KC_F12,    UG_HUEU,   UG_NEXT,
+               _______,   KC_F7,     KC_F8,     KC_F9,     UG_HUED,   UG_SPDU,
+               _______,   KC_F4,     KC_F5,     KC_F6,     UG_VALU,   UG_SPDD,
+               _______,   KC_F1,     KC_F2,     KC_F3,     UG_VALD,   UG_TOGG,
     _______,   _______
   ),
 };
@@ -193,7 +193,7 @@ void keyboard_post_init_user(void) {
   rgb_matrix_set_speed_noeeprom(32);
   rgb_matrix_enable_noeeprom();
 #endif  // RGB_MATRIX_CUSTOM_USER
-  
+
   debug_enable=false;
 }
 
@@ -248,12 +248,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
     case M_LAPSW:
       if (record->event.pressed) {
-        SEND_STRING(SS_LALT(SS_LCTL(SS_TAP(X_1))) SS_DELAY(100) SS_LALT(SS_LCTL(SS_TAP(X_F1))));
+        SEND_STRING(SS_LALT(SS_LCTL(SS_TAP(X_1))));
       }
       break;
     case M_DESKSW:
       if (record->event.pressed) {
-        SEND_STRING(SS_LALT(SS_LCTL(SS_TAP(X_2))) SS_DELAY(100) SS_LALT(SS_LCTL(SS_TAP(X_F2))));
+        SEND_STRING(SS_LALT(SS_LCTL(SS_TAP(X_2))));
       }
       break;
     case UKC_CAPS_WORD:
@@ -381,7 +381,7 @@ bool caps_word_press_user(uint16_t keycode) {
     }
 }
 
-uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t* record, 
+uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t* record,
                            uint16_t prev_keycode) {
     if (is_flow_tap_key(keycode) && is_flow_tap_key(prev_keycode)) {
         switch (keycode) {
