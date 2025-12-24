@@ -4,11 +4,11 @@
 #include "version.h"
 #include "i18n.h"
 //#include "features/achordion.h"
-#include "features/custom_shift_keys.h"
+// #include "features/custom_shift_keys.h"
 #define MOON_LED_LEVEL LED_LEVEL
 #define ML_SAFE_RANGE SAFE_RANGE
 #ifdef RGB_MATRIX_CUSTOM_USER
-#include "features/palettefx.h"
+// #include "features/palettefx.h"
 #endif  // RGB_MATRIX_CUSTOM_USER
 
 enum custom_keycodes {
@@ -56,9 +56,6 @@ const custom_shift_key_t custom_shift_keys[] = {
   {KC_EQUAL, KC_EQUAL},
   //{KC_MINUS, KC_MINUS},
 };
-
-uint8_t NUM_CUSTOM_SHIFT_KEYS =
-    sizeof(custom_shift_keys) / sizeof(custom_shift_key_t);
 
 #ifdef CHORDAL_HOLD
 // Handedness for Chordal Hold (https://github.com/qmk/qmk_firmware/pull/24560)
@@ -242,7 +239,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   uprintf("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
 #endif
   // if (!process_achordion(keycode, record)) { return false; }
-  if (!process_custom_shift_keys(keycode, record)) { return false; }
+  // if (!process_custom_shift_keys(keycode, record)) { return false; }
   switch (keycode) {
     case M_UPDIR:
       if (record->event.pressed) {
@@ -382,4 +379,21 @@ bool caps_word_press_user(uint16_t keycode) {
         default:
             return false;  // Deactivate Caps Word.
     }
+}
+
+uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t* record, 
+                           uint16_t prev_keycode) {
+    if (is_flow_tap_key(keycode) && is_flow_tap_key(prev_keycode)) {
+        switch (keycode) {
+            case HOME_U:
+            case HOME_H:
+            case HOME_A:
+            case HOME_S:
+              return FLOW_TAP_TERM - 40;  // Short timeout on these keys.
+
+            default:
+              return FLOW_TAP_TERM;  // Longer timeout otherwise.
+        }
+    }
+    return 0;  // Disable Flow Tap.
 }

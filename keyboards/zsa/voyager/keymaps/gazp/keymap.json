@@ -1,0 +1,6 @@
+{
+  "modules": [
+    "getreuer/palettefx",
+    "getreuer/custom_shift_keys"
+  ]
+}
