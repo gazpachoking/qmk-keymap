@@ -1,6 +1,3 @@
 {
-  "modules": [
-    "getreuer/palettefx",
-    "getreuer/custom_shift_keys"
-  ]
+  "modules": ["getreuer/palettefx", "getreuer/custom_shift_keys"]
 }

@@ -92,7 +92,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // gaming
   [GAME] = LAYOUT_LR(
     _______,   KC_1,      KC_2,      KC_3,      KC_4,      KC_5,
-    _______,   _______,   _______,   _______,   _______,   _______,
+    KC_EQUAL,  _______,   KC_COMMA,  KC_DOT,    _______,   _______,
     KC_ESC,    KC_A,      KC_O,      KC_E,      KC_U,      _______,
     KC_W,      KC_LSFT,   CTL_T(KC_Q),ALT_T(KC_J),_______, _______,
                                                            KC_ENTER,  KC_TAB,
@@ -181,6 +181,16 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         default:
             return TAPPING_TERM;
     }
+}
+
+bool get_speculative_hold(uint16_t keycode, keyrecord_t* record) {
+    switch (keycode) { // These keys may be speculatively held for mouse use.
+        case HOME_E:
+        case HOME_U:
+        case WIN_COLN:
+            return true;
+    }
+    return false; // Disable otherwise.
 }
 
 extern rgb_config_t rgb_matrix_config;
