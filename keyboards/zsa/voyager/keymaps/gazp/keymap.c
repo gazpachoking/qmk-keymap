@@ -3,6 +3,7 @@
 #include "layout.h"
 #include "version.h"
 #include "i18n.h"
+#include "raw_hid.h"
 //#include "features/achordion.h"
 // #include "features/custom_shift_keys.h"
 #define MOON_LED_LEVEL LED_LEVEL
@@ -191,6 +192,15 @@ bool get_speculative_hold(uint16_t keycode, keyrecord_t* record) {
             return true;
     }
     return false; // Disable otherwise.
+}
+
+void raw_hid_receive(uint8_t *data, uint8_t length) {
+    if (data[0] == 1) {
+        uint8_t layer = data[1];
+        uint8_t layer_mask = data[2] | (1 << layer);
+        if ((layer_state & layer_mask) == 0)
+            layer_move(layer);
+    }
 }
 
 extern rgb_config_t rgb_matrix_config;
