@@ -95,7 +95,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______,   KC_1,      KC_2,      KC_3,      KC_4,      KC_5,
     KC_EQUAL,  _______,   KC_COMMA,  KC_DOT,    _______,   _______,
     KC_ESC,    KC_A,      KC_O,      KC_E,      KC_U,      _______,
-    KC_W,      KC_LSFT,   CTL_T(KC_Q),ALT_T(KC_J),_______, _______,
+    KC_LGUI,   KC_LSFT,   CTL_T(KC_Q),ALT_T(KC_J),_______, _______,
                                                            KC_ENTER,  KC_TAB,
 
                KC_6,      KC_7,      KC_8,      KC_9,      KC_0,      _______,
@@ -213,8 +213,9 @@ void keyboard_post_init_user(void) {
   rgb_matrix_set_speed_noeeprom(32);
   rgb_matrix_enable_noeeprom();
 #endif  // RGB_MATRIX_CUSTOM_USER
-
-  debug_enable=false;
+#if CONSOLE_ENABLE
+  debug_enable=true;
+#endif
 }
 
 const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
